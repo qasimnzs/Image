@@ -3,198 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GK-Pitafi | CDN Dashboard</title>
+    <title>GK | Premium CDN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .animate-in { animation: fadeInUp 0.5s ease-out forwards; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fcfcfd; color: #111827; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
         .hidden-screen { display: none !important; }
+        .animate-fade { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        #mobileMenu { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="min-h-screen transition-all duration-500">
+<body class="min-h-screen">
 
     <!-- Login Screen -->
-    <div id="loginSection" class="fixed inset-0 z-[100] bg-slate-50 flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-100 w-full max-w-md animate-in">
-            <div class="text-center mb-8">
-                <div class="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-200">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                </div>
-                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">GK-<span class="text-blue-600">Pitafi</span></h1>
-                <p class="text-slate-400 text-sm font-medium mt-1">Please login to access CDN</p>
+    <div id="loginSection" class="fixed inset-0 z-[100] bg-white flex items-center justify-center p-6">
+        <div class="w-full max-w-sm animate-fade">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-black text-white rounded-3xl flex items-center justify-center mx-auto mb-6 text-3xl font-black shadow-2xl">GK</div>
+                <h1 class="text-2xl font-extrabold tracking-tight">Welcome Back</h1>
+                <p class="text-gray-500 text-sm mt-2 font-medium">Access your high-speed CDN panel</p>
             </div>
             
             <form id="loginForm" class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
-                    <input type="email" id="email" required class="w-full bg-slate-50 border border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all font-bold text-sm" placeholder="gk@gmail.com">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
-                    <input type="password" id="password" required class="w-full bg-slate-50 border border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all font-bold text-sm" placeholder="••••••••">
-                </div>
-                <button type="submit" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-blue-600 transition-all active:scale-95 text-xs uppercase tracking-[0.2em] mt-4">
-                    Authorize Access
-                </button>
-                <p id="loginError" class="text-red-500 text-[10px] font-bold text-center mt-2 hidden uppercase tracking-widest">Invalid Credentials!</p>
+                <input type="email" id="email" required class="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-black/5 transition-all font-semibold" placeholder="Email (gk@gmail.com)">
+                <input type="password" id="password" required class="w-full bg-gray-50 border border-gray-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-black/5 transition-all font-semibold" placeholder="Password (gk-pitafi)">
+                <button type="submit" class="w-full bg-black text-white font-bold py-4 rounded-2xl shadow-xl hover:opacity-90 active:scale-[0.98] transition-all uppercase tracking-widest text-xs">Login</button>
+                <p id="loginError" class="text-red-500 text-[10px] font-bold text-center mt-3 hidden">INVALID CREDENTIALS</p>
             </form>
         </div>
     </div>
 
-    <!-- Main Dashboard Container (Hidden by default) -->
-    <div id="dashboardSection" class="hidden-screen flex flex-col md:flex-row min-h-screen">
-        <!-- Sidebar -->
-        <aside class="w-full md:w-64 bg-white border-b md:border-r border-slate-200 flex flex-col sticky top-0 z-50">
-            <div class="p-6 border-b flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-100">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    <!-- Main Dashboard -->
+    <div id="dashboardSection" class="hidden-screen min-h-screen flex flex-col">
+        
+        <!-- Premium Navbar -->
+        <header class="sticky top-0 z-50 glass border-b border-gray-100 px-6 py-4">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center text-xl font-black">G</div>
+                    <span class="font-extrabold text-xl tracking-tighter">GK <span class="text-gray-400 font-medium">CDN</span></span>
                 </div>
-                <span class="font-extrabold text-xl tracking-tight uppercase">GK-<span class="text-blue-600 font-black">Pitafi</span></span>
-            </div>
-            
-            <nav class="p-4 space-y-1 flex-1">
-                <p class="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Main Menu</p>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-blue-600 bg-blue-50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                    Dashboard
-                </a>
-            </nav>
-
-            <div class="p-4 border-t">
-                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    Logout
+                
+                <button onclick="toggleMenu()" class="p-2 hover:bg-gray-100 rounded-xl transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
                 </button>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-4 sm:p-10 lg:p-16 max-w-7xl mx-auto w-full">
-            <div class="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <div>
-                    <h2 class="text-3xl font-black text-slate-800 tracking-tight uppercase">CDN Overview</h2>
-                    <p class="text-slate-400 font-medium text-sm mt-1">Secure image hosting powered by GK-Pitafi.</p>
+        <!-- Mobile Slide-out Menu -->
+        <div id="mobileMenu" class="fixed inset-0 z-[60] bg-black/20 backdrop-blur-sm translate-x-full pointer-events-none">
+            <div class="absolute right-0 top-0 h-full w-72 bg-white p-8 pointer-events-auto shadow-2xl">
+                <div class="flex justify-between items-center mb-10">
+                    <span class="font-black text-sm uppercase tracking-widest text-gray-400">Settings</span>
+                    <button onclick="toggleMenu()" class="text-gray-400">✕</button>
                 </div>
-                <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border shadow-sm px-6">
-                    <div class="text-right">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Storage Status</p>
-                        <p class="text-xs font-bold text-green-500">System Online</p>
-                    </div>
-                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xs">✓</div>
+                <div class="space-y-4">
+                    <a href="#" class="block p-4 bg-gray-50 rounded-2xl font-bold text-sm">Dashboard</a>
+                    <a href="#" class="block p-4 text-gray-400 font-bold text-sm">Asset Library</a>
+                    <hr class="border-gray-50 my-6">
+                    <button onclick="logout()" class="w-full text-left p-4 text-red-500 font-bold text-sm flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>
+                        Logout Session
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div class="grid lg:grid-cols-12 gap-8 items-start">
-                <div class="lg:col-span-5 space-y-6">
-                    <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
-                        <h3 class="font-black text-slate-800 text-sm uppercase tracking-widest mb-6">Upload Assets</h3>
-                        <div id="dropzone" onclick="document.getElementById('fileInput').click()" class="group border-2 border-dashed border-slate-200 bg-slate-50/50 rounded-[2rem] p-12 text-center hover:border-blue-500 hover:bg-blue-50/30 transition-all cursor-pointer">
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 md:p-12 max-w-7xl mx-auto w-full">
+            <div class="grid lg:grid-cols-12 gap-8">
+                
+                <!-- Upload Section -->
+                <div class="lg:col-span-5">
+                    <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 h-full flex flex-col">
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-extrabold tracking-tight">Upload</h2>
+                            <p class="text-gray-400 text-sm font-medium">Multiple images supported</p>
+                        </div>
+
+                        <div id="dropzone" onclick="document.getElementById('fileInput').click()" class="flex-1 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center p-10 cursor-pointer hover:border-black hover:bg-gray-50 transition-all group">
                             <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
-                            <div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform">
-                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            <div class="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-gray-400 group-hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2.5" stroke-linecap="round"/></svg>
                             </div>
-                            <p class="font-black text-slate-800 text-sm">Select Images</p>
+                            <p class="font-bold text-sm">Tap to Select</p>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest mt-2 font-bold">Max 10MB each</p>
                         </div>
 
-                        <div id="previewSection" class="mt-8 hidden">
+                        <div id="previewSection" class="mt-8 hidden animate-fade">
                             <div id="previewGrid" class="grid grid-cols-4 gap-2 mb-6"></div>
-                            <button id="uploadBtn" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-2xl hover:bg-blue-600 transition-all text-xs uppercase tracking-widest">Process Upload</button>
+                            <button id="uploadBtn" class="w-full bg-black text-white font-bold py-5 rounded-2xl text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all">Start Processing</button>
                         </div>
 
-                        <div id="progressBox" class="mt-8 hidden">
-                            <div class="flex justify-between items-end mb-3 font-black text-[10px] text-blue-600 uppercase tracking-widest">
-                                <span>Uploading...</span>
-                                <span id="percent">0%</span>
+                        <!-- Progress UI -->
+                        <div id="progressBox" class="mt-8 hidden animate-fade">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-[10px] font-black uppercase tracking-widest">Optimizing Assets</span>
+                                <span id="percent" class="text-xs font-bold text-black">0%</span>
                             </div>
-                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                                <div id="progressBar" class="bg-blue-600 h-full w-0 transition-all duration-500"></div>
+                            <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                <div id="progressBar" class="bg-black h-full w-0 transition-all duration-300"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Links Section -->
                 <div class="lg:col-span-7">
-                    <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 min-h-[500px]">
+                    <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 min-h-[500px]">
                         <div class="flex items-center justify-between mb-8">
-                            <h3 class="font-black text-slate-800 text-sm uppercase tracking-widest">Live CDN Links</h3>
-                            <button id="copyAll" class="hidden bg-blue-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">Copy All</button>
+                            <h2 class="text-2xl font-extrabold tracking-tight">Active Links</h2>
+                            <button id="copyAll" class="hidden bg-gray-100 hover:bg-black hover:text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all">Copy All</button>
                         </div>
-                        <div id="emptyState" class="flex flex-col items-center justify-center h-64 text-slate-300">
-                            <p class="text-xs font-bold uppercase tracking-widest">Ready for upload</p>
+                        
+                        <div id="emptyState" class="flex flex-col items-center justify-center h-80 opacity-20">
+                            <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2"/></svg>
+                            <p class="text-xs font-bold uppercase tracking-widest">No Links Generated</p>
                         </div>
-                        <div id="resultsList" class="space-y-4"></div>
+
+                        <div id="resultsList" class="space-y-3"></div>
                     </div>
                 </div>
+
             </div>
         </main>
     </div>
 
-    <!-- Toast -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[11px] font-black shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-10 z-[200] uppercase tracking-widest">
-        Copied!
-    </div>
+    <!-- Feedback Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl text-[11px] font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-10 z-[200] uppercase tracking-widest">Copied!</div>
 
     <script>
-        // --- AUTH LOGIC ---
+        // --- Auth & Navigation ---
         const loginForm = document.getElementById('loginForm');
         const loginSection = document.getElementById('loginSection');
         const dashboardSection = document.getElementById('dashboardSection');
-        const errorMsg = document.getElementById('loginError');
+        const mobileMenu = document.getElementById('mobileMenu');
 
-        // Check if already logged in
-        if (localStorage.getItem('gk_auth') === 'true') {
-            showDashboard();
+        if (localStorage.getItem('gk_cdn_auth') === 'true') {
+            loginSection.classList.add('hidden-screen');
+            dashboardSection.classList.remove('hidden-screen');
         }
 
         loginForm.onsubmit = (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-
             if (email === 'gk@gmail.com' && pass === 'gk-pitafi') {
-                localStorage.setItem('gk_auth', 'true');
-                showDashboard();
+                localStorage.setItem('gk_cdn_auth', 'true');
+                location.reload();
             } else {
-                errorMsg.classList.remove('hidden');
-                setTimeout(() => errorMsg.classList.add('hidden'), 3000);
+                document.getElementById('loginError').classList.remove('hidden');
             }
         };
 
-        function showDashboard() {
-            loginSection.classList.add('hidden-screen');
-            dashboardSection.classList.remove('hidden-screen');
+        function toggleMenu() {
+            const isOpen = !mobileMenu.classList.contains('translate-x-full');
+            mobileMenu.classList.toggle('translate-x-full', isOpen);
+            mobileMenu.classList.toggle('pointer-events-none', isOpen);
         }
 
         function logout() {
-            localStorage.removeItem('gk_auth');
+            localStorage.removeItem('gk_cdn_auth');
             location.reload();
         }
 
-        // --- CDN LOGIC ---
+        // --- Core CDN Logic ---
         const cloudName = "dozknmpib";
-        const uploadPreset = "Gkpitafi"; // Isko "Gk" hi rehne den kyunke screenshot mein yahi hai
+        const uploadPreset = "Gkpitafi"; // Updated as requested
         
         const fileInput = document.getElementById('fileInput');
         const uploadBtn = document.getElementById('uploadBtn');
-        const previewGrid = document.getElementById('previewGrid');
         const resultsList = document.getElementById('resultsList');
-        const toast = document.getElementById('toast');
         let generatedLinks = [];
 
         fileInput.onchange = (e) => {
             const files = Array.from(e.target.files);
             if(files.length > 0) {
                 document.getElementById('previewSection').classList.remove('hidden');
-                previewGrid.innerHTML = '';
+                document.getElementById('previewGrid').innerHTML = '';
                 files.forEach(file => {
                     const reader = new FileReader();
                     reader.onload = (ev) => {
                         const div = document.createElement('div');
-                        div.className = "aspect-square rounded-xl overflow-hidden border bg-white";
+                        div.className = "aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100";
                         div.innerHTML = `<img src="${ev.target.result}" class="w-full h-full object-cover">`;
-                        previewGrid.appendChild(div);
+                        document.getElementById('previewGrid').appendChild(div);
                     };
                     reader.readAsDataURL(file);
                 });
@@ -233,50 +228,54 @@
                 document.getElementById('progressBar').style.width = p + '%';
                 document.getElementById('percent').innerText = p + '%';
             }
-            
             document.getElementById('progressBox').classList.add('hidden');
             document.getElementById('copyAll').classList.remove('hidden');
         };
 
         function addResult(url, thumb, name) {
             const row = document.createElement('div');
-            row.className = "bg-white p-4 rounded-[1.5rem] border border-slate-100 flex items-center gap-4 shadow-sm animate-in";
+            row.className = "bg-gray-50/50 p-4 rounded-3xl border border-gray-100 flex flex-col sm:flex-row items-center gap-4 animate-fade";
             row.innerHTML = `
-                <div class="w-12 h-12 rounded-xl overflow-hidden border flex-shrink-0">
+                <div class="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
                     <img src="${thumb}" class="w-full h-full object-cover">
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-[9px] font-black text-slate-300 uppercase truncate mb-1">${name}</p>
-                    <div class="flex gap-2">
-                        <input type="text" readonly value="${url}" class="flex-1 bg-slate-50 border text-[10px] px-3 py-2 rounded-lg outline-none font-bold text-slate-500">
-                        <button onclick="copy('${url}', this)" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-black">COPY</button>
+                <div class="flex-1 w-full min-w-0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="text" readonly value="${url}" class="flex-1 bg-white border border-gray-100 text-[11px] px-4 py-3 rounded-xl outline-none font-bold text-gray-500">
+                        <button onclick="copy('${url}', this)" class="bg-black text-white px-5 py-3 rounded-xl text-[10px] font-bold">COPY</button>
                     </div>
+                    <p class="text-[9px] font-bold text-gray-300 uppercase truncate px-1">${name}</p>
                 </div>
             `;
-            resultsList.appendChild(row);
+            resultsList.prepend(row);
         }
 
         function copy(text, btn) {
             navigator.clipboard.writeText(text);
-            const oldText = btn.innerText;
+            const original = btn.innerText;
             btn.innerText = "✓";
-            showToast("Link Copied!");
-            setTimeout(() => btn.innerText = oldText, 2000);
+            btn.classList.add('bg-green-500');
+            showToast("Copied to clipboard");
+            setTimeout(() => {
+                btn.innerText = original;
+                btn.classList.remove('bg-green-500');
+            }, 2000);
         }
 
         function showToast(msg) {
-            toast.innerText = msg;
-            toast.classList.replace('opacity-0', 'opacity-100');
-            toast.classList.replace('translate-y-10', 'translate-y-0');
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.replace('opacity-0', 'opacity-100');
+            t.classList.replace('translate-y-10', 'translate-y-0');
             setTimeout(() => {
-                toast.classList.replace('opacity-100', 'opacity-0');
-                toast.classList.replace('translate-y-0', 'translate-y-10');
+                t.classList.replace('opacity-100', 'opacity-0');
+                t.classList.replace('translate-y-0', 'translate-y-10');
             }, 2000);
         }
 
         document.getElementById('copyAll').onclick = () => {
             navigator.clipboard.writeText(generatedLinks.join('\n'));
-            showToast("All Links Copied!");
+            showToast("Bulk Links Copied!");
         };
     </script>
 </body>
