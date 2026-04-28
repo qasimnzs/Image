@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/cdn/:id", "destination": "/api/image?id=:id" }
+  ]
+}

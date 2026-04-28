@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISL-Meta | CDN Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .animate-in { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <!-- Sidebar / Top Branding -->
+    <aside class="w-full md:w-64 bg-white border-b md:border-r border-slate-200 flex flex-col sticky top-0 z-50">
+        <div class="p-6 border-b flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-100">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <span class="font-extrabold text-xl tracking-tight uppercase">ISL-<span class="text-blue-600 font-black">Meta</span></span>
+        </div>
+        
+        <nav class="p-4 space-y-1 hidden md:block">
+            <p class="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Main Menu</p>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-blue-600 bg-blue-50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-50 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Assets Library
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 sm:p-10 lg:p-16 max-w-7xl mx-auto w-full">
+        
+        <!-- Welcome Header -->
+        <div class="mb-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div>
+                <h2 class="text-3xl font-black text-slate-800 tracking-tight">CDN Overview</h2>
+                <p class="text-slate-400 font-medium text-sm mt-1">Generate high-speed URLs for your images.</p>
+            </div>
+            <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border shadow-sm px-6">
+                <div class="text-right">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Storage Status</p>
+                    <p class="text-xs font-bold text-green-500">System Online</p>
+                </div>
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xs">✓</div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Upload Panel -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-50">
+                    <h3 class="font-black text-slate-800 text-sm uppercase tracking-widest mb-6">Create New Links</h3>
+                    
+                    <!-- Fixed Dropzone -->
+                    <div id="dropzone" onclick="document.getElementById('fileInput').click()" class="group border-2 border-dashed border-slate-200 bg-slate-50/50 rounded-[2rem] p-12 text-center hover:border-blue-500 hover:bg-blue-50/30 transition-all cursor-pointer">
+                        <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
+                        <div class="w-16 h-16 bg-white shadow-xl rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        </div>
+                        <p class="font-black text-slate-800 text-sm">Tap or Drag Images</p>
+                        <p class="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest italic">Bulk Upload Support</p>
+                    </div>
+
+                    <!-- Preview after selection -->
+                    <div id="previewSection" class="mt-8 hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Queue (<span id="count">0</span>)</p>
+                        </div>
+                        <div id="previewGrid" class="grid grid-cols-4 gap-2 mb-6"></div>
+                        <button id="uploadBtn" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-2xl hover:bg-blue-600 transition-all active:scale-95 text-xs uppercase tracking-widest">
+                            Start Processing
+                        </button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="progressBox" class="mt-8 hidden">
+                        <div class="flex justify-between items-end mb-3 font-black text-[10px] text-blue-600 uppercase tracking-widest">
+                            <span>Uploading Assets...</span>
+                            <span id="percent">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div id="progressBar" class="bg-blue-600 h-full w-0 transition-all duration-500"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="lg:col-span-7">
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 min-h-[500px]">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="font-black text-slate-800 text-sm uppercase tracking-widest">Generated URLs</h3>
+                        <button id="copyAll" class="hidden bg-blue-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 active:scale-95 transition-all">Copy All</button>
+                    </div>
+
+                    <!-- Placeholder -->
+                    <div id="emptyState" class="flex flex-col items-center justify-center h-64 text-slate-300">
+                        <svg class="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <p class="text-xs font-bold uppercase tracking-widest">No Links Ready</p>
+                    </div>
+
+                    <div id="resultsList" class="space-y-4"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Professional Toast UI -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[11px] font-black shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-10 z-[100] uppercase tracking-widest">
+        Copied to Clipboard!
+    </div>
+
+    <script>
+        const cloudName = "dozknmpib";
+        const uploadPreset = "Jskanakan";
+        
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const previewGrid = document.getElementById('previewGrid');
+        const resultsList = document.getElementById('resultsList');
+        const toast = document.getElementById('toast');
+        let generatedLinks = [];
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            if(files.length > 0) {
+                document.getElementById('previewSection').classList.remove('hidden');
+                document.getElementById('count').innerText = files.length;
+                previewGrid.innerHTML = '';
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const div = document.createElement('div');
+                        div.className = "aspect-square rounded-xl overflow-hidden border shadow-sm bg-white";
+                        div.innerHTML = `<img src="${ev.target.result}" class="w-full h-full object-cover">`;
+                        previewGrid.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        };
+
+        uploadBtn.onclick = async () => {
+            const files = fileInput.files;
+            if(!files.length) return;
+
+            document.getElementById('previewSection').classList.add('hidden');
+            document.getElementById('progressBox').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            resultsList.innerHTML = '';
+            generatedLinks = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const formData = new FormData();
+                formData.append('file', files[i]);
+                formData.append('upload_preset', uploadPreset);
+
+                try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    
+                    if(data.public_id) {
+                        const cleanId = data.public_id.replace(/[_-]/g, "");
+                        const finalUrl = `${window.location.origin}/cdn/cmnko${cleanId}`;
+                        generatedLinks.push(finalUrl);
+                        addResult(finalUrl, data.secure_url, files[i].name);
+                    }
+                } catch (e) { console.error(e); }
+
+                let p = Math.round(((i + 1) / files.length) * 100);
+                document.getElementById('progressBar').style.width = p + '%';
+                document.getElementById('percent').innerText = p + '%';
+            }
+            
+            document.getElementById('progressBox').classList.add('hidden');
+            document.getElementById('copyAll').classList.remove('hidden');
+        };
+
+        function addResult(url, thumb, name) {
+            const row = document.createElement('div');
+            row.className = "bg-white p-4 sm:p-5 rounded-[2rem] border border-slate-100 flex items-center gap-5 shadow-sm animate-in";
+            row.innerHTML = `
+                <div class="w-14 h-14 rounded-2xl overflow-hidden border bg-slate-50 flex-shrink-0">
+                    <img src="${thumb}" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5 truncate">${name}</p>
+                    <div class="flex gap-2">
+                        <input type="text" readonly value="${url}" class="flex-1 bg-slate-50 border border-slate-100 text-[10px] p-3 rounded-xl outline-none font-bold text-slate-500">
+                        <button onclick="copy('${url}', this)" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black shadow-lg">COPY</button>
+                    </div>
+                </div>
+            `;
+            resultsList.appendChild(row);
+        }
+
+        function copy(text, btn) {
+            navigator.clipboard.writeText(text);
+            btn.innerText = "✓";
+            btn.classList.replace('bg-slate-900', 'bg-green-500');
+            showToast("Copied to Clipboard");
+            setTimeout(() => {
+                btn.innerText = "COPY";
+                btn.classList.replace('bg-green-500', 'bg-slate-900');
+            }, 2000);
+        }
+
+        function showToast(msg) {
+            toast.innerText = msg;
+            toast.classList.replace('opacity-0', 'opacity-100');
+            toast.classList.replace('translate-y-10', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.replace('opacity-100', 'opacity-0');
+                toast.classList.replace('translate-y-0', 'translate-y-10');
+            }, 2500);
+        }
+
+        document.getElementById('copyAll').onclick = () => {
+            navigator.clipboard.writeText(generatedLinks.join('\n'));
+            showToast("All Links Copied!");
+        };
+    </script>
+</body>
+</html>
