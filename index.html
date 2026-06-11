@@ -157,20 +157,22 @@
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
                         <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
                         
-                        <!-- Drag & Drop Zone -->
-                        <div id="dropZone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <!-- Drag & Drop Zone (Changed to LABEL for 100% native functionality) -->
+                        <label for="fileInput" id="dropZone" class="block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <!-- Input File (Hidden but clickable via label) -->
                             <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
-                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4 pointer-events-none">
+                            
+                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4">
                                 <i class="ph ph-images"></i>
                             </div>
-                            <p class="font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">Drag & Drop images here</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4 pointer-events-none">or click to browse files</p>
+                            <p class="font-semibold text-gray-700 dark:text-gray-200">Drag & Drop images here</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">or click to browse files</p>
                             
-                            <!-- Changed button type to button to prevent any form issues -->
-                            <button type="button" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform pointer-events-none">
+                            <!-- Fake Button Look (Span is used instead of button inside label) -->
+                            <span class="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform">
                                 Browse Files
-                            </button>
-                        </div>
+                            </span>
+                        </label>
 
                         <!-- Upload Queue -->
                         <div id="uploadQueue" class="mt-4 space-y-3 hidden">
@@ -300,14 +302,7 @@
         
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
 
-        // FIXED: Dropzone click event bubbling bug
-        dropZone.onclick = (e) => {
-            // Prevent infinite click loop
-            if (e.target !== fileInput) {
-                fileInput.click();
-            }
-        };
-
+        // Drag events for Desktop
         dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
         dropZone.ondragleave = () => dropZone.classList.remove('dragover');
         dropZone.ondrop = (e) => {
@@ -315,6 +310,8 @@
             dropZone.classList.remove('dragover');
             handleFiles(e.dataTransfer.files);
         };
+        
+        // Native change event trigger
         fileInput.onchange = (e) => handleFiles(e.target.files);
 
         function handleFiles(files) {
@@ -328,7 +325,7 @@
                 }
                 uploadFileToCloudinary(file);
             });
-            fileInput.value = ''; // reset
+            fileInput.value = ''; // Reset input to allow selecting same file again if needed
         }
 
         function uploadFileToCloudinary(file) {
