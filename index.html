@@ -157,27 +157,43 @@
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
                         <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
                         
-                        <!-- Drag & Drop Zone (Changed to LABEL for 100% native functionality) -->
+                        <!-- Drag & Drop Zone -->
                         <label for="fileInput" id="dropZone" class="block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <!-- Input File (Hidden but clickable via label) -->
                             <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
                             
-                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4">
+                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4 pointer-events-none">
                                 <i class="ph ph-images"></i>
                             </div>
-                            <p class="font-semibold text-gray-700 dark:text-gray-200">Drag & Drop images here</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">or click to browse files</p>
+                            <p class="font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">Drag & Drop images here</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4 pointer-events-none">or click to browse files</p>
                             
-                            <!-- Fake Button Look (Span is used instead of button inside label) -->
-                            <span class="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform">
-                                Browse Files
+                            <span class="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform pointer-events-none">
+                                Select Images
                             </span>
                         </label>
 
-                        <!-- Upload Queue -->
-                        <div id="uploadQueue" class="mt-4 space-y-3 hidden">
-                            <h3 class="text-sm font-semibold text-gray-500">Uploading...</h3>
-                            <div id="queueList" class="space-y-2"></div>
+                        <!-- STAGING / PREVIEW AREA (NEW) -->
+                        <div id="stagingArea" class="mt-6 hidden fade-in bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Selected: <span id="selectedCount" class="text-brand">0</span> images</h3>
+                                <button type="button" onclick="clearSelection()" class="text-xs text-red-500 hover:text-red-600 font-medium px-2 py-1 bg-red-50 dark:bg-red-500/10 rounded-lg transition-colors">Clear All</button>
+                            </div>
+                            
+                            <!-- Thumbnails Grid -->
+                            <div id="previewList" class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4 max-h-48 overflow-y-auto pr-1"></div>
+
+                            <button onclick="startUpload()" class="w-full bg-brand hover:bg-brandHover text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                <i class="ph ph-cloud-arrow-up text-lg"></i> Upload Now
+                            </button>
+                        </div>
+
+                        <!-- Upload Queue (Progress Bars) -->
+                        <div id="uploadQueue" class="mt-6 space-y-3 hidden">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Uploading...</h3>
+                                <i class="ph ph-spinner-gap animate-spin text-brand text-xl"></i>
+                            </div>
+                            <div id="queueList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
                         </div>
                     </div>
                 </div>
@@ -291,18 +307,23 @@
             }
         }
 
-        /* ================= UPLOAD & CLOUDINARY ================= */
+        /* ================= UPLOAD PREVIEW & CLOUDINARY ================= */
         const cloudName = "dozknmpib";
         const uploadPreset = "Gkpitafi";
         
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
+        const stagingArea = document.getElementById('stagingArea');
+        const previewList = document.getElementById('previewList');
+        const selectedCount = document.getElementById('selectedCount');
+        
         const uploadQueue = document.getElementById('uploadQueue');
         const queueList = document.getElementById('queueList');
         
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
+        let selectedFilesArray = []; // Store selected files before upload
 
-        // Drag events for Desktop
+        // Drag events
         dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
         dropZone.ondragleave = () => dropZone.classList.remove('dragover');
         dropZone.ondrop = (e) => {
@@ -311,26 +332,88 @@
             handleFiles(e.dataTransfer.files);
         };
         
-        // Native change event trigger
+        // Input change
         fileInput.onchange = (e) => handleFiles(e.target.files);
 
+        // 1. ADD TO STAGING AREA (PREVIEW)
         function handleFiles(files) {
             if (!files.length) return;
-            uploadQueue.classList.remove('hidden');
 
             Array.from(files).forEach(file => {
                 if (!file.type.startsWith('image/')) {
                     showToast("Only images are allowed!", "error");
                     return;
                 }
-                uploadFileToCloudinary(file);
+                
+                // Prevent duplicate files from being selected multiple times
+                const isDuplicate = selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size);
+                if (!isDuplicate) {
+                    const id = Math.random().toString(36).substring(7);
+                    const url = URL.createObjectURL(file);
+                    selectedFilesArray.push({ id, file, url });
+                }
             });
-            fileInput.value = ''; // Reset input to allow selecting same file again if needed
+
+            fileInput.value = ''; // Reset input
+            renderPreview();
         }
 
-        function uploadFileToCloudinary(file) {
-            const fileId = Math.random().toString(36).substring(7);
+        // 2. RENDER THE PREVIEW GRID
+        function renderPreview() {
+            if (selectedFilesArray.length === 0) {
+                stagingArea.classList.add('hidden');
+                return;
+            }
+
+            stagingArea.classList.remove('hidden');
+            selectedCount.innerText = selectedFilesArray.length;
+            previewList.innerHTML = '';
+
+            selectedFilesArray.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 aspect-square bg-gray-200 dark:bg-gray-800 shadow-sm fade-in";
+                div.innerHTML = `
+                    <img src="${item.url}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                        <button type="button" onclick="removeSelected('${item.id}')" class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors shadow-lg hover:scale-105" title="Remove">
+                            <i class="ph ph-trash text-lg"></i>
+                        </button>
+                    </div>
+                `;
+                previewList.appendChild(div);
+            });
+        }
+
+        // Remove individual file from preview
+        function removeSelected(id) {
+            selectedFilesArray = selectedFilesArray.filter(item => item.id !== id);
+            renderPreview();
+        }
+
+        // Clear all files from preview
+        function clearSelection() {
+            selectedFilesArray = [];
+            renderPreview();
+        }
+
+        // 3. START ACTUAL UPLOAD
+        function startUpload() {
+            if (selectedFilesArray.length === 0) return;
             
+            // Show queue loader
+            uploadQueue.classList.remove('hidden');
+
+            const filesToUpload = [...selectedFilesArray];
+            
+            // Clear preview area
+            clearSelection();
+            
+            filesToUpload.forEach(item => {
+                uploadFileToCloudinary(item.file, item.id);
+            });
+        }
+
+        function uploadFileToCloudinary(file, fileId) {
             // Add UI to queue
             const queueItem = document.createElement('div');
             queueItem.id = `q_${fileId}`;
