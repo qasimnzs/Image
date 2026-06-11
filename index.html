@@ -29,13 +29,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .dark .glass { background: rgba(31, 41, 55, 0.7); border-color: rgba(55, 65, 81, 0.5); }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
-
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -44,40 +37,27 @@
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
     <!-- LOGIN SCREEN -->
-    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 z-[100]">
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 z-50">
         <div class="w-full max-w-md p-8 glass border border-gray-200 dark:border-gray-700 rounded-3xl shadow-2xl fade-in mx-4">
-            <div class="flex justify-center mb-6">
-                <div class="w-16 h-16 bg-brand text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg">
-                    <i class="ph ph-cloud-arrow-up"></i>
-                </div>
-            </div>
-            <h1 class="text-2xl font-bold text-center mb-2">Welcome to GK CDN</h1>
-            <p class="text-center text-gray-500 dark:text-gray-400 mb-8 text-sm">Sign in to manage your media securely.</p>
+            <h1 class="text-3xl font-black text-center mb-2 text-brand">GK CDN</h1>
+            <p class="text-center text-gray-500 mb-8">Login to continue</p>
 
-            <form id="loginForm" class="space-y-5">
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Email Address</label>
-                    <div class="relative">
-                        <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                        <input id="email" type="email" placeholder="gk@gmail.com" class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-transparent focus:border-brand focus:bg-white dark:focus:bg-gray-700 outline-none transition-all">
-                    </div>
+            <form id="loginForm" class="space-y-4">
+                <input id="email" type="email" placeholder="Email Address"
+                    class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand">
+
+                <div class="relative">
+                    <input id="password" type="password" placeholder="Password"
+                        class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand">
+                    <button type="button" id="togglePass" class="absolute right-4 top-4 text-gray-500">
+                        <i class="ph ph-eye text-xl"></i>
+                    </button>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2">Password</label>
-                    <div class="relative">
-                        <i class="ph ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                        <input id="password" type="password" placeholder="••••••••" class="w-full pl-12 pr-12 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-transparent focus:border-brand focus:bg-white dark:focus:bg-gray-700 outline-none transition-all">
-                        <button type="button" id="togglePass" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                            <i class="ph ph-eye text-lg"></i>
-                        </button>
-                    </div>
-                </div>
+                <p id="loginErr" class="text-red-500 text-sm text-center hidden">Wrong credentials</p>
 
-                <p id="loginErr" class="text-red-500 text-sm text-center hidden font-medium fade-in">Incorrect email or password!</p>
-
-                <button class="w-full bg-brand hover:bg-brandHover text-white py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-95">
-                    Sign In
+                <button class="w-full bg-brand hover:bg-brandHover text-white p-4 rounded-xl font-bold transition-all">
+                    LOGIN
                 </button>
             </form>
         </div>
@@ -95,14 +75,14 @@
                     </div>
                     <div>
                         <h2 class="font-bold text-lg leading-tight">GK CDN</h2>
-                        <span class="text-xs text-brand font-semibold">PRO VERSION</span>
+                        <span class="text-xs text-brand font-semibold">PRO</span>
                     </div>
                 </div>
                 <button id="closeSidebar" class="md:hidden text-gray-500 text-2xl"><i class="ph ph-x"></i></button>
             </div>
 
             <nav class="flex-1 px-4 py-4 space-y-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-brand/10 text-brand dark:bg-brand/20 rounded-xl font-semibold transition-all">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-brand/10 text-brand rounded-xl font-semibold">
                     <i class="ph ph-squares-four text-xl"></i> Dashboard
                 </a>
             </nav>
@@ -110,14 +90,13 @@
             <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-4 px-2">
                     <span class="text-sm font-semibold">Theme</span>
-                    <button onclick="toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-gray-600 relative transition-colors">
-                        <div id="themeKnob" class="w-5 h-5 bg-white rounded-full shadow absolute top-0.5 left-0.5 transition-transform dark:translate-x-6 flex items-center justify-center">
-                            <i class="ph ph-sun text-xs text-yellow-500 dark:hidden"></i>
-                            <i class="ph ph-moon text-xs text-blue-500 hidden dark:block"></i>
+                    <button onclick="toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-gray-600 relative">
+                        <div id="themeKnob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 flex items-center justify-center dark:translate-x-6 transition-transform">
+                            <i class="ph ph-moon text-xs text-brand"></i>
                         </div>
                     </button>
                 </div>
-                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl font-semibold transition-all">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 rounded-xl font-semibold">
                     <i class="ph ph-sign-out"></i> Logout
                 </button>
             </div>
@@ -131,94 +110,71 @@
             
             <!-- HEADER -->
             <header class="glass sticky top-0 z-20 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <button id="openSidebar" class="md:hidden text-2xl text-gray-600 dark:text-gray-300"><i class="ph ph-list"></i></button>
-                    <h1 class="text-xl font-bold hidden sm:block">Overview</h1>
-                </div>
+                <button id="openSidebar" class="md:hidden text-2xl"><i class="ph ph-list"></i></button>
                 
-                <div class="flex gap-4">
-                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm">
-                        <div class="p-1.5 bg-green-100 text-green-600 rounded-lg"><i class="ph ph-image"></i></div>
-                        <div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Images</p>
-                            <p id="totalCount" class="font-bold leading-tight">0</p>
-                        </div>
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl flex items-center gap-3 ml-auto">
+                    <div class="p-1.5 bg-green-100 text-green-600 rounded-lg"><i class="ph ph-image"></i></div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Images</p>
+                        <p id="totalCount" class="font-bold leading-tight">0</p>
                     </div>
                 </div>
             </header>
 
-            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_1.5fr] gap-6">
+            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-6">
 
-                <!-- LEFT COLUMN: UPLOAD -->
+                <!-- LEFT: UPLOAD SECTION -->
                 <div class="space-y-6">
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
+                        <h2 class="font-bold text-xl mb-4 text-brand">Upload Media</h2>
                         
-                        <!-- UPLOAD BOX EXACTLY FROM YOUR LOGIC -->
-                        <div id="dropZone" class="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all hover:bg-gray-50 dark:hover:bg-gray-700 overflow-hidden group">
+                        <!-- EXACTLY YOUR WORKING DROPZONE HTML -->
+                        <div id="dropZone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 p-8 text-center rounded-2xl relative">
                             
-                            <!-- HIDDEN INPUT EXACTLY LIKE YOUR CODE -->
-                            <input type="file" id="fileInput" multiple accept="image/*" 
-                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50">
-
-                            <!-- DESIGN ELEMENT -->
-                            <div class="pointer-events-none relative z-10">
-                                <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 group-hover:bg-brand/10 group-hover:text-brand rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4 transition-colors">
-                                    <i class="ph ph-images"></i>
-                                </div>
-                                <p class="font-semibold text-gray-700 dark:text-gray-200">Tap to select images</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">or drag and drop files</p>
-                                
-                                <span class="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm shadow-md">
-                                    Browse Files
-                                </span>
+                            <input type="file" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            
+                            <div class="pointer-events-none">
+                                <i class="ph ph-cloud-arrow-up text-5xl text-brand mb-2"></i>
+                                <p class="text-lg font-bold">Tap to select images</p>
+                                <p class="text-sm text-gray-500">or click to browse files</p>
                             </div>
+
                         </div>
 
                         <!-- STAGING / PREVIEW AREA -->
-                        <div id="stagingArea" class="hidden mt-6 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 fade-in">
+                        <div id="stagingArea" class="hidden mt-6 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Selected: <span id="selectedCount" class="text-brand">0</span> images</h3>
-                                <button type="button" onclick="clearSelection()" class="text-xs text-red-500 hover:text-red-600 font-medium px-2 py-1 bg-red-50 dark:bg-red-500/10 rounded-lg transition-colors">Clear All</button>
+                                <h3 class="font-semibold">Selected: <span id="selectedCount" class="text-brand text-lg">0</span></h3>
+                                <button type="button" onclick="clearSelection()" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-lg">Clear All</button>
                             </div>
                             
-                            <!-- Thumbnails Grid -->
-                            <div id="previewList" class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4 max-h-48 overflow-y-auto pr-1"></div>
+                            <div id="previewList" class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4 max-h-48 overflow-y-auto"></div>
 
-                            <button onclick="startUpload()" class="w-full bg-brand hover:bg-brandHover text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-95 flex items-center justify-center gap-2">
-                                <i class="ph ph-cloud-arrow-up text-lg"></i> Upload Now
+                            <button onclick="startUpload()" class="w-full bg-brand text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                                <i class="ph ph-upload-simple"></i> Upload Now
                             </button>
                         </div>
 
-                        <!-- Upload Queue (Progress Bars) -->
-                        <div id="uploadQueue" class="mt-6 space-y-3 hidden fade-in">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Uploading...</h3>
-                                <i class="ph ph-spinner-gap animate-spin text-brand text-xl"></i>
-                            </div>
-                            <div id="queueList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                        <!-- UPLOAD QUEUE -->
+                        <div id="uploadQueue" class="mt-6 space-y-3 hidden">
+                            <h3 class="font-semibold text-brand animate-pulse">Uploading to Server...</h3>
+                            <div id="queueList" class="space-y-2"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: GALLERY & LINKS -->
+                <!-- RIGHT: GALLERY SECTION -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col h-[calc(100vh-140px)]">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                        <h2 class="font-bold text-lg flex items-center gap-2"><i class="ph ph-link text-brand"></i> Hosted Links</h2>
-                        
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <div class="relative flex-1 sm:w-64">
-                                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <input id="searchInput" type="text" placeholder="Search..." class="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-brand outline-none transition-all">
-                            </div>
-                            <button onclick="copyAllLinks()" class="bg-brand/10 hover:bg-brand/20 text-brand px-4 py-2 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap flex items-center gap-2">
-                                <i class="ph ph-copy"></i> Copy All
-                            </button>
-                        </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold text-xl text-brand">Hosted Links</h2>
+                        <button onclick="copyAllLinks()" class="text-sm bg-brand/10 text-brand px-4 py-2 rounded-xl font-bold">
+                            Copy All
+                        </button>
                     </div>
 
-                    <!-- Links List -->
-                    <div id="linksContainer" class="flex-1 overflow-y-auto pr-2 space-y-3">
+                    <input id="searchInput" type="text" placeholder="Search links..." class="w-full p-3 mb-4 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:ring-2 ring-brand">
+
+                    <div id="linksContainer" class="flex-1 overflow-y-auto space-y-3">
                         <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
                             <i class="ph ph-folder-open text-6xl mb-3 opacity-50"></i>
                             <p>No images uploaded yet.</p>
@@ -230,132 +186,93 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl font-medium text-sm">
-        <i id="toastIcon" class="text-xl"></i>
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-xl shadow-2xl font-bold text-sm hidden">
         <span id="toastMsg"></span>
     </div>
 
     <script>
-        /* ================= AUTHENTICATION ================= */
+        // ================= AUTH =================
         const ADMIN_EMAIL = "gk@gmail.com";
         const ADMIN_PASS = "gk-pitafi";
 
-        const loginScreen = document.getElementById("loginScreen");
-        const app = document.getElementById("app");
-
-        if (localStorage.getItem("auth") === "1") {
-            loginScreen.classList.add("hidden");
-            app.classList.remove("hidden");
+        if(localStorage.getItem("auth") === "1"){
+            document.getElementById("loginScreen").classList.add("hidden");
+            document.getElementById("app").classList.remove("hidden");
             renderLinks();
         }
 
-        document.getElementById("loginForm").onsubmit = (e) => {
+        document.getElementById("loginForm").onsubmit = (e)=>{
             e.preventDefault();
-            const email = document.getElementById("email").value;
-            const pass = document.getElementById("password").value;
-
-            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
-                localStorage.setItem("auth", "1");
+            if(document.getElementById("email").value === ADMIN_EMAIL && document.getElementById("password").value === ADMIN_PASS){
+                localStorage.setItem("auth","1");
                 location.reload();
             } else {
                 document.getElementById("loginErr").classList.remove("hidden");
             }
         };
 
-        document.getElementById("togglePass").onclick = () => {
-            const passInput = document.getElementById("password");
-            const icon = document.querySelector("#togglePass i");
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                icon.classList.replace("ph-eye", "ph-eye-slash");
-            } else {
-                passInput.type = "password";
-                icon.classList.replace("ph-eye-slash", "ph-eye");
-            }
+        document.getElementById("togglePass").onclick = ()=>{
+            const p = document.getElementById("password");
+            p.type = p.type === "password" ? "text" : "password";
         };
 
-        function logout() {
+        function logout(){
             localStorage.removeItem("auth");
             location.reload();
         }
 
-        /* ================= THEME (DARK/LIGHT) ================= */
+        // ================= THEME =================
         const html = document.documentElement;
-        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            html.classList.add('dark');
-        }
+        if (localStorage.getItem('theme') === 'dark') html.classList.add('dark');
 
-        function toggleTheme() {
+        function toggleTheme(){
             html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
         }
 
-        /* ================= MOBILE SIDEBAR ================= */
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("sidebarOverlay");
-        
-        document.getElementById("openSidebar").onclick = () => toggleSidebar(true);
-        document.getElementById("closeSidebar").onclick = () => toggleSidebar(false);
-        overlay.onclick = () => toggleSidebar(false);
+        // ================= SIDEBAR =================
+        document.getElementById("openSidebar").onclick = () => {
+            document.getElementById("sidebar").classList.remove("-translate-x-full");
+            document.getElementById("sidebarOverlay").classList.remove("hidden");
+        };
+        const closeSide = () => {
+            document.getElementById("sidebar").classList.add("-translate-x-full");
+            document.getElementById("sidebarOverlay").classList.add("hidden");
+        };
+        document.getElementById("closeSidebar").onclick = closeSide;
+        document.getElementById("sidebarOverlay").onclick = closeSide;
 
-        function toggleSidebar(show) {
-            if (show) {
-                sidebar.classList.remove("-translate-x-full");
-                overlay.classList.remove("hidden");
-            } else {
-                sidebar.classList.add("-translate-x-full");
-                overlay.classList.add("hidden");
-            }
-        }
-
-        /* ================= UPLOAD PREVIEW (YOUR EXACT LOGIC) ================= */
+        // ================= EXACT UPLOAD LOGIC =================
         const cloudName = "dozknmpib";
         const uploadPreset = "Gkpitafi";
         
-        const dropZone = document.getElementById('dropZone');
+        let selectedFilesArray = [];
+        let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
+
         const fileInput = document.getElementById("fileInput");
         const stagingArea = document.getElementById("stagingArea");
         const previewList = document.getElementById("previewList");
         const selectedCount = document.getElementById("selectedCount");
-        
-        const uploadQueue = document.getElementById('uploadQueue');
-        const queueList = document.getElementById('queueList');
-        
-        let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
-        let selectedFilesArray = []; 
+        const dropZone = document.getElementById("dropZone");
 
-        /* ================= FIXED INPUT HANDLER ================= */
         fileInput.addEventListener("change", (e) => {
             handleFiles(e.target.files);
             fileInput.value = "";
         });
 
-        /* ================= DRAG DROP ================= */
-        dropZone.addEventListener("dragover", e => {
-            e.preventDefault();
-            dropZone.classList.add('border-brand', 'bg-gray-50', 'dark:bg-gray-700');
-        });
-        dropZone.addEventListener("dragleave", e => {
-            dropZone.classList.remove('border-brand', 'bg-gray-50', 'dark:bg-gray-700');
-        });
+        dropZone.addEventListener("dragover", e => e.preventDefault());
         dropZone.addEventListener("drop", e => {
             e.preventDefault();
-            dropZone.classList.remove('border-brand', 'bg-gray-50', 'dark:bg-gray-700');
             handleFiles(e.dataTransfer.files);
         });
 
-        /* ================= CORE FIX (EXACTLY FROM YOUR CODE) ================= */
         function handleFiles(files) {
             let added = 0;
-
             Array.from(files).forEach(file => {
                 if (!file.type.startsWith("image/")) return;
 
-                const exists = selectedFilesArray.some(f =>
-                    f.file.name === file.name && f.file.size === file.size
-                );
+                const exists = selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size);
 
                 if (!exists) {
                     selectedFilesArray.push({
@@ -367,13 +284,9 @@
                 }
             });
 
-            if (added > 0) {
-                renderPreview();
-                showToast(`${added} images selected!`, "success");
-            }
+            if (added > 0) renderPreview();
         }
 
-        /* ================= PREVIEW (MERGED WITH PREMIUM UI) ================= */
         function renderPreview() {
             if (selectedFilesArray.length === 0) {
                 stagingArea.classList.add("hidden");
@@ -386,14 +299,10 @@
 
             selectedFilesArray.forEach(item => {
                 const div = document.createElement("div");
-                div.className = "relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 aspect-square bg-gray-200 dark:bg-gray-800 shadow-sm fade-in";
+                div.className = "relative rounded-lg overflow-hidden border border-gray-300";
                 div.innerHTML = `
-                    <img src="${item.url}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                        <button type="button" onclick="removeSelected('${item.id}')" class="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors shadow-lg hover:scale-105" title="Remove">
-                            <i class="ph ph-trash text-lg"></i>
-                        </button>
-                    </div>
+                    <img src="${item.url}" class="w-full h-24 object-cover">
+                    <button onclick="removeSelected('${item.id}')" class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center shadow">X</button>
                 `;
                 previewList.appendChild(div);
             });
@@ -409,32 +318,27 @@
             renderPreview();
         }
 
-        /* ================= START UPLOAD TO CLOUDINARY ================= */
+        // ================= CLOUDINARY UPLOAD =================
         function startUpload() {
             if (selectedFilesArray.length === 0) return;
             
-            uploadQueue.classList.remove('hidden');
+            document.getElementById('uploadQueue').classList.remove('hidden');
             const filesToUpload = [...selectedFilesArray];
             clearSelection();
             
             filesToUpload.forEach(item => {
-                uploadFileToCloudinary(item.file, item.id);
+                uploadToCloudinary(item.file, item.id);
             });
         }
 
-        function uploadFileToCloudinary(file, fileId) {
+        function uploadToCloudinary(file, fileId) {
+            const queueList = document.getElementById('queueList');
             const queueItem = document.createElement('div');
             queueItem.id = `q_${fileId}`;
-            queueItem.className = 'bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center gap-3 fade-in';
+            queueItem.className = 'bg-gray-100 dark:bg-gray-800 p-3 rounded-lg flex items-center gap-3 text-sm font-semibold';
             queueItem.innerHTML = `
-                <i class="ph ph-image text-2xl text-gray-400"></i>
-                <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold truncate mb-1">${file.name}</p>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                        <div id="prog_${fileId}" class="bg-brand h-1.5 rounded-full transition-all duration-200" style="width: 0%"></div>
-                    </div>
-                </div>
-                <span id="perc_${fileId}" class="text-xs font-bold text-gray-500">0%</span>
+                <div class="flex-1 truncate">${file.name}</div>
+                <div id="perc_${fileId}" class="text-brand">0%</div>
             `;
             queueList.prepend(queueItem);
 
@@ -448,7 +352,6 @@
             xhr.upload.onprogress = (e) => {
                 if (e.lengthComputable) {
                     const percent = Math.round((e.loaded / e.total) * 100);
-                    document.getElementById(`prog_${fileId}`).style.width = percent + '%';
                     document.getElementById(`perc_${fileId}`).innerText = percent + '%';
                 }
             };
@@ -456,40 +359,32 @@
             xhr.onload = () => {
                 if (xhr.status === 200) {
                     const data = JSON.parse(xhr.responseText);
-                    const newLink = { url: data.secure_url, name: file.name, id: Date.now().toString() };
+                    savedLinks.unshift({ url: data.secure_url, name: file.name, id: Date.now().toString() });
                     
-                    savedLinks.unshift(newLink);
-                    saveToLocal();
+                    localStorage.setItem('gk_links', JSON.stringify(savedLinks));
                     renderLinks();
-                    showToast("Uploaded Successfully!", "success");
+                    showToast("Uploaded Successfully!");
                     
                     setTimeout(() => queueItem.remove(), 1000);
-                    if(queueList.children.length <= 1) setTimeout(() => uploadQueue.classList.add('hidden'), 1000);
-
+                    if(queueList.children.length <= 1) setTimeout(() => document.getElementById('uploadQueue').classList.add('hidden'), 1000);
                 } else {
-                    showToast("Upload Failed!", "error");
-                    queueItem.innerHTML = `<span class="text-xs text-red-500">Upload Failed</span>`;
+                    queueItem.innerHTML += `<span class="text-red-500">Failed</span>`;
                 }
             };
             xhr.send(fd);
         }
 
-        /* ================= GALLERY & LINKS MANAGEMENT ================= */
-        const linksContainer = document.getElementById('linksContainer');
-        const emptyState = document.getElementById('emptyState');
-        const totalCount = document.getElementById('totalCount');
-
-        function saveToLocal() {
-            localStorage.setItem('gk_links', JSON.stringify(savedLinks));
-        }
-
+        // ================= GALLERY =================
         function renderLinks(filter = "") {
+            const linksContainer = document.getElementById('linksContainer');
+            const emptyState = document.getElementById('emptyState');
+            
             const filteredLinks = savedLinks.filter(item => 
                 item.name.toLowerCase().includes(filter.toLowerCase()) || 
                 item.url.toLowerCase().includes(filter.toLowerCase())
             );
 
-            totalCount.innerText = savedLinks.length;
+            document.getElementById('totalCount').innerText = savedLinks.length;
 
             if (filteredLinks.length === 0) {
                 emptyState.style.display = 'flex';
@@ -498,79 +393,63 @@
             }
 
             emptyState.style.display = 'none';
-            
             Array.from(linksContainer.children).forEach(child => { if(child.id !== 'emptyState') child.remove() });
 
             filteredLinks.forEach(item => {
                 const div = document.createElement('div');
-                div.className = "flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-brand/50 transition-colors fade-in group";
+                div.className = "flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700";
                 div.innerHTML = `
-                    <img src="${item.url}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
+                    <img src="${item.url}" class="w-12 h-12 rounded-xl object-cover">
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold truncate">${item.name}</p>
-                        <a href="${item.url}" target="_blank" class="text-xs text-blue-500 hover:underline truncate block w-4/5">${item.url}</a>
+                        <a href="${item.url}" target="_blank" class="text-xs text-blue-500 hover:underline truncate block">${item.url}</a>
                     </div>
-                    <div class="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="copyText('${item.url}')" class="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors" title="Copy Link">
-                            <i class="ph ph-copy"></i>
-                        </button>
-                        <button onclick="deleteLink('${item.id}')" class="w-8 h-8 flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-500 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors" title="Delete">
-                            <i class="ph ph-trash"></i>
-                        </button>
-                    </div>
+                    <button onclick="copyText('${item.url}')" class="p-2 bg-gray-200 dark:bg-gray-800 rounded-lg"><i class="ph ph-copy"></i></button>
+                    <button onclick="deleteLink('${item.id}')" class="p-2 bg-red-100 text-red-600 rounded-lg"><i class="ph ph-trash"></i></button>
                 `;
                 linksContainer.appendChild(div);
             });
         }
 
-        document.getElementById('searchInput').oninput = (e) => {
-            renderLinks(e.target.value);
-        };
+        document.getElementById('searchInput').oninput = (e) => renderLinks(e.target.value);
 
         function copyText(text) {
             navigator.clipboard.writeText(text);
-            showToast("Link Copied!", "success");
+            showToast("Link Copied!");
         }
 
         function copyAllLinks() {
-            if(savedLinks.length === 0) return showToast("No links to copy", "error");
-            const allUrls = savedLinks.map(l => l.url).join("\n");
-            navigator.clipboard.writeText(allUrls);
-            showToast(`${savedLinks.length} Links Copied!`, "success");
+            if(savedLinks.length === 0) return showToast("No links to copy");
+            navigator.clipboard.writeText(savedLinks.map(l => l.url).join("\n"));
+            showToast("All Links Copied!");
         }
 
         function deleteLink(id) {
-            if(confirm("Are you sure you want to remove this image from the list?")) {
+            if(confirm("Delete this image?")) {
                 savedLinks = savedLinks.filter(item => item.id !== id);
-                saveToLocal();
-                renderLinks(document.getElementById('searchInput').value);
-                showToast("Link Removed", "success");
+                localStorage.setItem('gk_links', JSON.stringify(savedLinks));
+                renderLinks();
+                showToast("Deleted");
             }
         }
 
-        /* ================= TOAST NOTIFICATIONS ================= */
+        // ================= TOAST =================
         let toastTimeout;
-        function showToast(msg, type = "success") {
+        function showToast(msg) {
             const toast = document.getElementById("toast");
-            const toastIcon = document.getElementById("toastIcon");
-            const toastMsg = document.getElementById("toastMsg");
-
+            document.getElementById("toastMsg").innerText = msg;
+            
+            toast.classList.remove("hidden");
             clearTimeout(toastTimeout);
 
-            if (type === "success") {
-                toast.className = "fixed bottom-6 right-6 transform translate-y-0 opacity-100 transition-all duration-300 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl font-medium text-sm bg-gray-900 text-white dark:bg-white dark:text-gray-900";
-                toastIcon.className = "ph ph-check-circle text-green-400 dark:text-green-600 text-xl";
-            } else {
-                toast.className = "fixed bottom-6 right-6 transform translate-y-0 opacity-100 transition-all duration-300 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl font-medium text-sm bg-red-600 text-white";
-                toastIcon.className = "ph ph-warning-circle text-white text-xl";
-            }
-
-            toastMsg.innerText = msg;
+            setTimeout(() => {
+                toast.classList.remove("translate-y-20", "opacity-0");
+            }, 10);
 
             toastTimeout = setTimeout(() => {
-                toast.classList.replace("translate-y-0", "translate-y-20");
-                toast.classList.replace("opacity-100", "opacity-0");
-            }, 3000);
+                toast.classList.add("translate-y-20", "opacity-0");
+                setTimeout(() => toast.classList.add("hidden"), 300);
+            }, 2000);
         }
     </script>
 </body>
