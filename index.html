@@ -157,10 +157,11 @@
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
                         <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
                         
-                        <!-- Drag & Drop Zone -->
+                        <!-- FIX: Hidden input is now OUTSIDE the label completely -->
+                        <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
+                        
+                        <!-- Drag & Drop Zone Label -->
                         <label for="fileInput" id="dropZone" class="block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
-                            
                             <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4 pointer-events-none">
                                 <i class="ph ph-images"></i>
                             </div>
@@ -172,7 +173,7 @@
                             </span>
                         </label>
 
-                        <!-- STAGING / PREVIEW AREA (NEW) -->
+                        <!-- STAGING / PREVIEW AREA -->
                         <div id="stagingArea" class="mt-6 hidden fade-in bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Selected: <span id="selectedCount" class="text-brand">0</span> images</h3>
@@ -321,9 +322,9 @@
         const queueList = document.getElementById('queueList');
         
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
-        let selectedFilesArray = []; // Store selected files before upload
+        let selectedFilesArray = []; 
 
-        // Drag events
+        // Drag events for Desktop
         dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
         dropZone.ondragleave = () => dropZone.classList.remove('dragover');
         dropZone.ondrop = (e) => {
@@ -332,12 +333,18 @@
             handleFiles(e.dataTransfer.files);
         };
         
-        // Input change
-        fileInput.onchange = (e) => handleFiles(e.target.files);
+        // FIX: Modern Event Listener instead of simple onchange
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files.length > 0) {
+                handleFiles(this.files);
+            }
+        });
 
         // 1. ADD TO STAGING AREA (PREVIEW)
         function handleFiles(files) {
-            if (!files.length) return;
+            if (!files || files.length === 0) return;
+
+            let addedCount = 0;
 
             Array.from(files).forEach(file => {
                 if (!file.type.startsWith('image/')) {
@@ -345,17 +352,21 @@
                     return;
                 }
                 
-                // Prevent duplicate files from being selected multiple times
                 const isDuplicate = selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size);
                 if (!isDuplicate) {
                     const id = Math.random().toString(36).substring(7);
                     const url = URL.createObjectURL(file);
                     selectedFilesArray.push({ id, file, url });
+                    addedCount++;
                 }
             });
 
             fileInput.value = ''; // Reset input
-            renderPreview();
+            
+            if (addedCount > 0) {
+                renderPreview();
+                showToast(`${addedCount} images selected for upload`, "success");
+            }
         }
 
         // 2. RENDER THE PREVIEW GRID
@@ -400,12 +411,8 @@
         function startUpload() {
             if (selectedFilesArray.length === 0) return;
             
-            // Show queue loader
             uploadQueue.classList.remove('hidden');
-
             const filesToUpload = [...selectedFilesArray];
-            
-            // Clear preview area
             clearSelection();
             
             filesToUpload.forEach(item => {
@@ -414,7 +421,6 @@
         }
 
         function uploadFileToCloudinary(file, fileId) {
-            // Add UI to queue
             const queueItem = document.createElement('div');
             queueItem.id = `q_${fileId}`;
             queueItem.className = 'bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center gap-3 fade-in';
@@ -453,7 +459,7 @@
                     savedLinks.unshift(newLink);
                     saveToLocal();
                     renderLinks();
-                    showToast("Image Uploaded Successfully!", "success");
+                    showToast("Uploaded Successfully!", "success");
                     
                     setTimeout(() => queueItem.remove(), 1000);
                     if(queueList.children.length <= 1) setTimeout(() => uploadQueue.classList.add('hidden'), 1000);
