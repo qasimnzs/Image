@@ -160,12 +160,14 @@
                         <!-- Drag & Drop Zone -->
                         <div id="dropZone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                             <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
-                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4">
+                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4 pointer-events-none">
                                 <i class="ph ph-images"></i>
                             </div>
-                            <p class="font-semibold text-gray-700 dark:text-gray-200">Drag & Drop images here</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">or click to browse files</p>
-                            <button class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform">
+                            <p class="font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">Drag & Drop images here</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4 pointer-events-none">or click to browse files</p>
+                            
+                            <!-- Changed button type to button to prevent any form issues -->
+                            <button type="button" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform pointer-events-none">
                                 Browse Files
                             </button>
                         </div>
@@ -221,14 +223,12 @@
         const loginScreen = document.getElementById("loginScreen");
         const app = document.getElementById("app");
 
-        // Check Login Status
         if (localStorage.getItem("auth") === "1") {
             loginScreen.classList.add("hidden");
             app.classList.remove("hidden");
             renderLinks();
         }
 
-        // Handle Login
         document.getElementById("loginForm").onsubmit = (e) => {
             e.preventDefault();
             const email = document.getElementById("email").value;
@@ -242,7 +242,6 @@
             }
         };
 
-        // Toggle Password Visibility
         document.getElementById("togglePass").onclick = () => {
             const passInput = document.getElementById("password");
             const icon = document.querySelector("#togglePass i");
@@ -301,8 +300,14 @@
         
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
 
-        // Drag & Drop Events
-        dropZone.onclick = () => fileInput.click();
+        // FIXED: Dropzone click event bubbling bug
+        dropZone.onclick = (e) => {
+            // Prevent infinite click loop
+            if (e.target !== fileInput) {
+                fileInput.click();
+            }
+        };
+
         dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
         dropZone.ondragleave = () => dropZone.classList.remove('dragover');
         dropZone.ondrop = (e) => {
@@ -345,7 +350,6 @@
             `;
             queueList.prepend(queueItem);
 
-            // Upload via XMLHttpRequest to get real progress
             const fd = new FormData();
             fd.append("file", file);
             fd.append("upload_preset", uploadPreset);
@@ -371,7 +375,6 @@
                     renderLinks();
                     showToast("Image Uploaded Successfully!", "success");
                     
-                    // Remove from queue
                     setTimeout(() => queueItem.remove(), 1000);
                     if(queueList.children.length <= 1) setTimeout(() => uploadQueue.classList.add('hidden'), 1000);
 
@@ -408,7 +411,6 @@
 
             emptyState.style.display = 'none';
             
-            // Clear current list except empty state
             Array.from(linksContainer.children).forEach(child => { if(child.id !== 'emptyState') child.remove() });
 
             filteredLinks.forEach(item => {
@@ -433,12 +435,10 @@
             });
         }
 
-        // Search Links
         document.getElementById('searchInput').oninput = (e) => {
             renderLinks(e.target.value);
         };
 
-        // Actions
         function copyText(text) {
             navigator.clipboard.writeText(text);
             showToast("Link Copied!", "success");
