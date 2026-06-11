@@ -29,8 +29,12 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .dark .glass { background: rgba(31, 41, 55, 0.7); border-color: rgba(55, 65, 81, 0.5); }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
     </style>
 </head>
 
@@ -38,25 +42,25 @@
 
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 z-50">
-        <div class="w-full max-w-md p-8 glass border border-gray-200 dark:border-gray-700 rounded-3xl shadow-2xl fade-in mx-4">
+        <div class="w-full max-w-md p-8 glass border border-gray-200 dark:border-gray-700 rounded-3xl shadow-2xl mx-4">
             <h1 class="text-3xl font-black text-center mb-2 text-brand">GK CDN</h1>
             <p class="text-center text-gray-500 mb-8">Login to continue</p>
 
             <form id="loginForm" class="space-y-4">
                 <input id="email" type="email" placeholder="Email Address"
-                    class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand">
+                    class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand font-medium">
 
                 <div class="relative">
                     <input id="password" type="password" placeholder="Password"
-                        class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand">
+                        class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand font-medium">
                     <button type="button" id="togglePass" class="absolute right-4 top-4 text-gray-500">
                         <i class="ph ph-eye text-xl"></i>
                     </button>
                 </div>
 
-                <p id="loginErr" class="text-red-500 text-sm text-center hidden">Wrong credentials</p>
+                <p id="loginErr" class="text-red-500 text-sm text-center hidden font-bold">Wrong credentials</p>
 
-                <button class="w-full bg-brand hover:bg-brandHover text-white p-4 rounded-xl font-bold transition-all">
+                <button class="w-full bg-brand hover:bg-brandHover text-white p-4 rounded-xl font-bold transition-all shadow-lg">
                     LOGIN
                 </button>
             </form>
@@ -75,7 +79,7 @@
                     </div>
                     <div>
                         <h2 class="font-bold text-lg leading-tight">GK CDN</h2>
-                        <span class="text-xs text-brand font-semibold">PRO</span>
+                        <span class="text-xs text-brand font-semibold">PRO VERSION</span>
                     </div>
                 </div>
                 <button id="closeSidebar" class="md:hidden text-gray-500 text-2xl"><i class="ph ph-x"></i></button>
@@ -89,14 +93,14 @@
 
             <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-4 px-2">
-                    <span class="text-sm font-semibold">Theme</span>
+                    <span class="text-sm font-semibold">Dark Mode</span>
                     <button onclick="toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-gray-600 relative">
-                        <div id="themeKnob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 flex items-center justify-center dark:translate-x-6 transition-transform">
+                        <div id="themeKnob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 flex items-center justify-center dark:translate-x-6 transition-transform shadow">
                             <i class="ph ph-moon text-xs text-brand"></i>
                         </div>
                     </button>
                 </div>
-                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 rounded-xl font-semibold">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 rounded-xl font-semibold hover:bg-red-100 transition-colors">
                     <i class="ph ph-sign-out"></i> Logout
                 </button>
             </div>
@@ -112,72 +116,83 @@
             <header class="glass sticky top-0 z-20 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <button id="openSidebar" class="md:hidden text-2xl"><i class="ph ph-list"></i></button>
                 
-                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl flex items-center gap-3 ml-auto">
+                <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl flex items-center gap-3 ml-auto shadow-sm">
                     <div class="p-1.5 bg-green-100 text-green-600 rounded-lg"><i class="ph ph-image"></i></div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Images</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Uploads</p>
                         <p id="totalCount" class="font-bold leading-tight">0</p>
                     </div>
                 </div>
             </header>
 
-            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-6">
+            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_1.5fr] gap-6">
 
                 <!-- LEFT: UPLOAD SECTION -->
                 <div class="space-y-6">
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <h2 class="font-bold text-xl mb-4 text-brand">Upload Media</h2>
+                        <h2 class="font-bold text-xl mb-5 text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                            <i class="ph ph-upload-simple text-brand"></i> Upload Media
+                        </h2>
                         
-                        <!-- EXACTLY YOUR WORKING DROPZONE HTML -->
-                        <div id="dropZone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 p-8 text-center rounded-2xl relative">
+                        <!-- 100% PURE FOOL-PROOF DROPZONE -->
+                        <div id="dropZone" class="relative border-2 border-brand border-dashed bg-brand/5 p-10 text-center rounded-3xl hover:bg-brand/10 transition-colors">
                             
-                            <input type="file" id="fileInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <!-- Notice the onchange event inline which guarantees execution -->
+                            <input type="file" id="fileInput" multiple accept="image/*" 
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                   onchange="processNativeFiles(this)">
                             
                             <div class="pointer-events-none">
-                                <i class="ph ph-cloud-arrow-up text-5xl text-brand mb-2"></i>
-                                <p class="text-lg font-bold">Tap to select images</p>
-                                <p class="text-sm text-gray-500">or click to browse files</p>
+                                <i class="ph ph-images text-5xl text-brand mb-3"></i>
+                                <p class="text-lg font-bold text-gray-800 dark:text-gray-200">Tap to select images</p>
+                                <p class="text-sm text-gray-500 mt-1">Select from your phone gallery</p>
                             </div>
 
                         </div>
 
                         <!-- STAGING / PREVIEW AREA -->
-                        <div id="stagingArea" class="hidden mt-6 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
+                        <div id="stagingArea" class="hidden mt-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-5 rounded-2xl shadow-sm">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="font-semibold">Selected: <span id="selectedCount" class="text-brand text-lg">0</span></h3>
-                                <button type="button" onclick="clearSelection()" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-lg">Clear All</button>
+                                <p class="font-bold text-gray-700 dark:text-gray-300">Selected: <span id="selectedCount" class="text-brand text-lg">0</span></p>
+                                <button type="button" onclick="clearSelection()" class="text-xs bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-200 transition-colors">Clear All</button>
                             </div>
                             
-                            <div id="previewList" class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4 max-h-48 overflow-y-auto"></div>
+                            <!-- Thumbnails -->
+                            <div id="previewList" class="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-5 max-h-56 overflow-y-auto pr-2"></div>
 
-                            <button onclick="startUpload()" class="w-full bg-brand text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
-                                <i class="ph ph-upload-simple"></i> Upload Now
+                            <button onclick="startUpload()" class="w-full bg-brand text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 text-lg shadow-lg hover:opacity-90 transition-opacity">
+                                <i class="ph ph-cloud-arrow-up text-xl"></i> Upload Now
                             </button>
                         </div>
 
                         <!-- UPLOAD QUEUE -->
                         <div id="uploadQueue" class="mt-6 space-y-3 hidden">
-                            <h3 class="font-semibold text-brand animate-pulse">Uploading to Server...</h3>
-                            <div id="queueList" class="space-y-2"></div>
+                            <h3 class="font-bold text-brand flex items-center gap-2"><i class="ph ph-spinner-gap animate-spin"></i> Uploading to Server...</h3>
+                            <div id="queueList" class="space-y-2 max-h-48 overflow-y-auto"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- RIGHT: GALLERY SECTION -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col h-[calc(100vh-140px)]">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="font-bold text-xl text-brand">Hosted Links</h2>
-                        <button onclick="copyAllLinks()" class="text-sm bg-brand/10 text-brand px-4 py-2 rounded-xl font-bold">
-                            Copy All
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="font-bold text-xl text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                            <i class="ph ph-link text-brand"></i> Hosted Links
+                        </h2>
+                        <button onclick="copyAllLinks()" class="text-sm bg-brand/10 text-brand px-4 py-2 rounded-xl font-bold hover:bg-brand/20 transition-colors flex items-center gap-2">
+                            <i class="ph ph-copy"></i> Copy All
                         </button>
                     </div>
 
-                    <input id="searchInput" type="text" placeholder="Search links..." class="w-full p-3 mb-4 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:ring-2 ring-brand">
+                    <div class="relative mb-5">
+                        <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                        <input id="searchInput" type="text" placeholder="Search links..." class="w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-900 border border-transparent dark:border-gray-700 rounded-xl outline-none focus:border-brand focus:bg-white transition-all font-medium">
+                    </div>
 
-                    <div id="linksContainer" class="flex-1 overflow-y-auto space-y-3">
+                    <div id="linksContainer" class="flex-1 overflow-y-auto space-y-3 pr-2">
                         <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
                             <i class="ph ph-folder-open text-6xl mb-3 opacity-50"></i>
-                            <p>No images uploaded yet.</p>
+                            <p class="font-medium">No images uploaded yet.</p>
                         </div>
                     </div>
                 </div>
@@ -187,17 +202,18 @@
     </div>
 
     <!-- TOAST -->
-    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-xl shadow-2xl font-bold text-sm hidden">
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-xl shadow-2xl font-bold text-sm transition-opacity duration-300 z-50 flex items-center gap-2 opacity-0" style="display: none;">
+        <i class="ph ph-info text-xl text-brand"></i>
         <span id="toastMsg"></span>
     </div>
 
     <script>
-        // ================= AUTH =================
+        // ================= AUTHENTICATION =================
         const ADMIN_EMAIL = "gk@gmail.com";
         const ADMIN_PASS = "gk-pitafi";
 
         if(localStorage.getItem("auth") === "1"){
-            document.getElementById("loginScreen").classList.add("hidden");
+            document.getElementById("loginScreen").style.display = "none";
             document.getElementById("app").classList.remove("hidden");
             renderLinks();
         }
@@ -222,7 +238,7 @@
             location.reload();
         }
 
-        // ================= THEME =================
+        // ================= THEME & SIDEBAR =================
         const html = document.documentElement;
         if (localStorage.getItem('theme') === 'dark') html.classList.add('dark');
 
@@ -231,7 +247,6 @@
             localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
         }
 
-        // ================= SIDEBAR =================
         document.getElementById("openSidebar").onclick = () => {
             document.getElementById("sidebar").classList.remove("-translate-x-full");
             document.getElementById("sidebarOverlay").classList.remove("hidden");
@@ -243,49 +258,64 @@
         document.getElementById("closeSidebar").onclick = closeSide;
         document.getElementById("sidebarOverlay").onclick = closeSide;
 
-        // ================= EXACT UPLOAD LOGIC =================
+
+        // ================= IMAGE SELECTION (BUG FIXED FOR ANDROID) =================
         const cloudName = "dozknmpib";
         const uploadPreset = "Gkpitafi";
         
         let selectedFilesArray = [];
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
 
-        const fileInput = document.getElementById("fileInput");
         const stagingArea = document.getElementById("stagingArea");
         const previewList = document.getElementById("previewList");
         const selectedCount = document.getElementById("selectedCount");
+
+        // THE ULTIMATE FIX: This runs instantly from the HTML onchange event
+        window.processNativeFiles = function(input) {
+            try {
+                if (!input.files || input.files.length === 0) return;
+                
+                // INSTANTLY copy files to an array. (Solves Android memory clear bug)
+                const filesArray = Array.from(input.files);
+                let added = 0;
+
+                filesArray.forEach(file => {
+                    // Safety check (Android sometimes returns missing MIME type)
+                    if (file.type && !file.type.startsWith("image/")) return;
+
+                    const exists = selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size);
+
+                    if (!exists) {
+                        selectedFilesArray.push({
+                            id: Math.random().toString(36).slice(2),
+                            file: file,
+                            url: URL.createObjectURL(file)
+                        });
+                        added++;
+                    }
+                });
+
+                if (added > 0) {
+                    renderPreview();
+                    showToast(`${added} Images Selected!`);
+                }
+
+                // Reset input field safely AFTER processing
+                setTimeout(() => { input.value = ""; }, 100);
+
+            } catch (err) {
+                alert("Error processing images: " + err.message);
+            }
+        };
+
+        // For PC Drag and Drop
         const dropZone = document.getElementById("dropZone");
-
-        fileInput.addEventListener("change", (e) => {
-            handleFiles(e.target.files);
-            fileInput.value = "";
-        });
-
         dropZone.addEventListener("dragover", e => e.preventDefault());
         dropZone.addEventListener("drop", e => {
             e.preventDefault();
-            handleFiles(e.dataTransfer.files);
+            const fakeInput = { files: e.dataTransfer.files, value: "" };
+            window.processNativeFiles(fakeInput);
         });
-
-        function handleFiles(files) {
-            let added = 0;
-            Array.from(files).forEach(file => {
-                if (!file.type.startsWith("image/")) return;
-
-                const exists = selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size);
-
-                if (!exists) {
-                    selectedFilesArray.push({
-                        id: Math.random().toString(36).slice(2),
-                        file,
-                        url: URL.createObjectURL(file)
-                    });
-                    added++;
-                }
-            });
-
-            if (added > 0) renderPreview();
-        }
 
         function renderPreview() {
             if (selectedFilesArray.length === 0) {
@@ -299,10 +329,12 @@
 
             selectedFilesArray.forEach(item => {
                 const div = document.createElement("div");
-                div.className = "relative rounded-lg overflow-hidden border border-gray-300";
+                div.className = "relative rounded-xl overflow-hidden border border-gray-300 dark:border-gray-600 bg-gray-200 dark:bg-gray-800 aspect-square";
                 div.innerHTML = `
-                    <img src="${item.url}" class="w-full h-24 object-cover">
-                    <button onclick="removeSelected('${item.id}')" class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center shadow">X</button>
+                    <img src="${item.url}" class="w-full h-full object-cover">
+                    <button onclick="removeSelected('${item.id}')" class="absolute top-1.5 right-1.5 bg-red-600 text-white w-7 h-7 rounded-full text-sm flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                        <i class="ph ph-x"></i>
+                    </button>
                 `;
                 previewList.appendChild(div);
             });
@@ -317,6 +349,7 @@
             selectedFilesArray = [];
             renderPreview();
         }
+
 
         // ================= CLOUDINARY UPLOAD =================
         function startUpload() {
@@ -335,10 +368,11 @@
             const queueList = document.getElementById('queueList');
             const queueItem = document.createElement('div');
             queueItem.id = `q_${fileId}`;
-            queueItem.className = 'bg-gray-100 dark:bg-gray-800 p-3 rounded-lg flex items-center gap-3 text-sm font-semibold';
+            queueItem.className = 'bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-3 rounded-xl flex items-center gap-3 text-sm font-semibold';
             queueItem.innerHTML = `
+                <i class="ph ph-image text-xl text-gray-400"></i>
                 <div class="flex-1 truncate">${file.name}</div>
-                <div id="perc_${fileId}" class="text-brand">0%</div>
+                <div id="perc_${fileId}" class="text-brand font-bold bg-brand/10 px-2 py-1 rounded-md">0%</div>
             `;
             queueList.prepend(queueItem);
 
@@ -397,15 +431,19 @@
 
             filteredLinks.forEach(item => {
                 const div = document.createElement('div');
-                div.className = "flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700";
+                div.className = "flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-brand/50 transition-colors";
                 div.innerHTML = `
-                    <img src="${item.url}" class="w-12 h-12 rounded-xl object-cover">
+                    <img src="${item.url}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold truncate">${item.name}</p>
-                        <a href="${item.url}" target="_blank" class="text-xs text-blue-500 hover:underline truncate block">${item.url}</a>
+                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">${item.name}</p>
+                        <a href="${item.url}" target="_blank" class="text-xs text-brand hover:underline truncate block w-5/6">${item.url}</a>
                     </div>
-                    <button onclick="copyText('${item.url}')" class="p-2 bg-gray-200 dark:bg-gray-800 rounded-lg"><i class="ph ph-copy"></i></button>
-                    <button onclick="deleteLink('${item.id}')" class="p-2 bg-red-100 text-red-600 rounded-lg"><i class="ph ph-trash"></i></button>
+                    <button onclick="copyText('${item.url}')" class="p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300">
+                        <i class="ph ph-copy text-lg"></i>
+                    </button>
+                    <button onclick="deleteLink('${item.id}')" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 rounded-xl shadow-sm hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
+                        <i class="ph ph-trash text-lg"></i>
+                    </button>
                 `;
                 linksContainer.appendChild(div);
             });
@@ -428,28 +466,26 @@
             if(confirm("Delete this image?")) {
                 savedLinks = savedLinks.filter(item => item.id !== id);
                 localStorage.setItem('gk_links', JSON.stringify(savedLinks));
-                renderLinks();
+                renderLinks(document.getElementById('searchInput').value);
                 showToast("Deleted");
             }
         }
 
-        // ================= TOAST =================
+        // ================= TOAST NOTIFICATION =================
         let toastTimeout;
         function showToast(msg) {
             const toast = document.getElementById("toast");
             document.getElementById("toastMsg").innerText = msg;
             
-            toast.classList.remove("hidden");
+            toast.style.display = "flex";
+            toast.classList.remove("opacity-0");
+            
             clearTimeout(toastTimeout);
 
-            setTimeout(() => {
-                toast.classList.remove("translate-y-20", "opacity-0");
-            }, 10);
-
             toastTimeout = setTimeout(() => {
-                toast.classList.add("translate-y-20", "opacity-0");
-                setTimeout(() => toast.classList.add("hidden"), 300);
-            }, 2000);
+                toast.classList.add("opacity-0");
+                setTimeout(() => { toast.style.display = "none"; }, 300);
+            }, 2500);
         }
     </script>
 </body>
