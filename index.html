@@ -1,227 +1,489 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GK | Premium CDN Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GK | Premium CDN Pro</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: { brand: '#4F46E5', brandHover: '#4338CA' }
+                }
+            }
+        }
+    </script>
 
-<style>
-body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background:#f8fafc;
-}
-.glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); }
-.hidden { display:none !important; }
-.fade { animation: fade .3s ease; }
-@keyframes fade { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
-</style>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .dark .glass { background: rgba(31, 41, 55, 0.7); border-color: rgba(55, 65, 81, 0.5); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #dropZone.dragover { border-color: #4F46E5; background-color: rgba(79, 70, 229, 0.05); }
+        .dark #dropZone.dragover { background-color: rgba(79, 70, 229, 0.15); }
+    </style>
 </head>
 
-<body class="min-h-screen text-gray-900">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-<!-- LOGIN -->
-<div id="login" class="fixed inset-0 flex items-center justify-center bg-white z-50">
-    <div class="w-full max-w-sm p-6 fade">
-        <h1 class="text-3xl font-black text-center mb-2">GK CDN</h1>
-        <p class="text-center text-gray-400 mb-8">Login to continue</p>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 z-[100]">
+        <div class="w-full max-w-md p-8 glass border border-gray-200 dark:border-gray-700 rounded-3xl shadow-2xl fade-in mx-4">
+            <div class="flex justify-center mb-6">
+                <div class="w-16 h-16 bg-brand text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                    <i class="ph ph-cloud-arrow-up"></i>
+                </div>
+            </div>
+            <h1 class="text-2xl font-bold text-center mb-2">Welcome to GK CDN</h1>
+            <p class="text-center text-gray-500 dark:text-gray-400 mb-8 text-sm">Sign in to manage your media securely.</p>
 
-        <form id="loginForm" class="space-y-4">
-            <input id="email" type="email" placeholder="Email"
-                class="w-full p-4 rounded-xl bg-gray-100 outline-none">
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Email Address</label>
+                    <div class="relative">
+                        <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                        <input id="email" type="email" placeholder="gk@gmail.com" class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-transparent focus:border-brand focus:bg-white dark:focus:bg-gray-700 outline-none transition-all">
+                    </div>
+                </div>
 
-            <div class="relative">
-                <input id="password" type="password" placeholder="Password"
-                    class="w-full p-4 rounded-xl bg-gray-100 outline-none">
-                <button type="button" id="toggle"
-                    class="absolute right-4 top-4 text-sm">👁</button>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Password</label>
+                    <div class="relative">
+                        <i class="ph ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                        <input id="password" type="password" placeholder="••••••••" class="w-full pl-12 pr-12 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 border border-transparent focus:border-brand focus:bg-white dark:focus:bg-gray-700 outline-none transition-all">
+                        <button type="button" id="togglePass" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                            <i class="ph ph-eye text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <p id="loginErr" class="text-red-500 text-sm text-center hidden font-medium fade-in">Incorrect email or password!</p>
+
+                <button class="w-full bg-brand hover:bg-brandHover text-white py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-500/30 transition-all active:scale-95">
+                    Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="app" class="hidden flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col fixed md:relative z-40 h-full transition-transform -translate-x-full md:translate-x-0">
+            <div class="p-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand text-white rounded-xl flex items-center justify-center text-xl shadow-md">
+                        <i class="ph ph-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-lg leading-tight">GK CDN</h2>
+                        <span class="text-xs text-brand font-semibold">PRO VERSION</span>
+                    </div>
+                </div>
+                <button id="closeSidebar" class="md:hidden text-gray-500 text-2xl"><i class="ph ph-x"></i></button>
             </div>
 
-            <button class="w-full bg-black text-white p-4 rounded-xl font-bold">
-                LOGIN
-            </button>
+            <nav class="flex-1 px-4 py-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-brand/10 text-brand dark:bg-brand/20 rounded-xl font-semibold transition-all">
+                    <i class="ph ph-squares-four text-xl"></i> Dashboard
+                </a>
+            </nav>
 
-            <p id="err" class="text-red-500 text-xs text-center hidden">Wrong credentials</p>
-        </form>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <span class="text-sm font-semibold">Theme</span>
+                    <button onclick="toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-gray-600 relative transition-colors">
+                        <div id="themeKnob" class="w-5 h-5 bg-white rounded-full shadow absolute top-0.5 left-0.5 transition-transform dark:translate-x-6 flex items-center justify-center">
+                            <i class="ph ph-sun text-xs text-yellow-500 dark:hidden"></i>
+                            <i class="ph ph-moon text-xs text-blue-500 hidden dark:block"></i>
+                        </div>
+                    </button>
+                </div>
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 rounded-xl font-semibold transition-all">
+                    <i class="ph ph-sign-out"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- OVERLAY FOR MOBILE -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden glass"></div>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col h-full relative overflow-y-auto">
+            
+            <!-- HEADER -->
+            <header class="glass sticky top-0 z-20 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <button id="openSidebar" class="md:hidden text-2xl text-gray-600 dark:text-gray-300"><i class="ph ph-list"></i></button>
+                    <h1 class="text-xl font-bold hidden sm:block">Overview</h1>
+                </div>
+                
+                <div class="flex gap-4">
+                    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl flex items-center gap-3 shadow-sm">
+                        <div class="p-1.5 bg-green-100 text-green-600 rounded-lg"><i class="ph ph-image"></i></div>
+                        <div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Images</p>
+                            <p id="totalCount" class="font-bold leading-tight">0</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_1.5fr] gap-6">
+
+                <!-- LEFT COLUMN: UPLOAD -->
+                <div class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
+                        
+                        <!-- Drag & Drop Zone -->
+                        <div id="dropZone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
+                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4">
+                                <i class="ph ph-images"></i>
+                            </div>
+                            <p class="font-semibold text-gray-700 dark:text-gray-200">Drag & Drop images here</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">or click to browse files</p>
+                            <button class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform">
+                                Browse Files
+                            </button>
+                        </div>
+
+                        <!-- Upload Queue -->
+                        <div id="uploadQueue" class="mt-4 space-y-3 hidden">
+                            <h3 class="text-sm font-semibold text-gray-500">Uploading...</h3>
+                            <div id="queueList" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: GALLERY & LINKS -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col h-[calc(100vh-140px)]">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <h2 class="font-bold text-lg flex items-center gap-2"><i class="ph ph-link text-brand"></i> Hosted Links</h2>
+                        
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-64">
+                                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                <input id="searchInput" type="text" placeholder="Search..." class="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:border-brand outline-none transition-all">
+                            </div>
+                            <button onclick="copyAllLinks()" class="bg-brand/10 hover:bg-brand/20 text-brand px-4 py-2 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap flex items-center gap-2">
+                                <i class="ph ph-copy"></i> Copy All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Links List -->
+                    <div id="linksContainer" class="flex-1 overflow-y-auto pr-2 space-y-3">
+                        <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
+                            <i class="ph ph-folder-open text-6xl mb-3 opacity-50"></i>
+                            <p>No images uploaded yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
     </div>
-</div>
 
-<!-- DASHBOARD -->
-<div id="app" class="hidden">
-
-<!-- TOP BAR -->
-<header class="glass sticky top-0 p-4 flex justify-between items-center border-b">
-    <h1 class="font-black text-xl">GK CDN PRO</h1>
-
-    <div class="flex gap-3">
-        <button onclick="toggleTheme()" class="text-xs px-3 py-2 bg-gray-100 rounded-lg">Theme</button>
-        <button onclick="logout()" class="text-xs px-3 py-2 bg-red-100 text-red-600 rounded-lg">Logout</button>
-    </div>
-</header>
-
-<main class="p-6 max-w-6xl mx-auto grid lg:grid-cols-2 gap-6">
-
-<!-- UPLOAD -->
-<div class="bg-white p-6 rounded-3xl border">
-    <h2 class="font-bold mb-4">Upload Images</h2>
-
-    <input type="file" id="file" multiple class="mb-4">
-
-    <button onclick="uploadFiles()"
-        class="w-full bg-black text-white py-3 rounded-xl font-bold">
-        Start Upload
-    </button>
-
-    <div id="preview" class="grid grid-cols-4 gap-2 mt-4"></div>
-</div>
-
-<!-- LINKS -->
-<div class="bg-white p-6 rounded-3xl border">
-    <div class="flex justify-between mb-4">
-        <h2 class="font-bold">Links</h2>
-        <button onclick="copyAll()" class="text-xs bg-gray-100 px-3 py-1 rounded-lg">
-            Copy All
-        </button>
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl font-medium text-sm">
+        <i id="toastIcon" class="text-xl"></i>
+        <span id="toastMsg"></span>
     </div>
 
-    <input id="search" placeholder="Search links..."
-        class="w-full p-3 mb-4 bg-gray-100 rounded-xl">
+    <script>
+        /* ================= AUTHENTICATION ================= */
+        const ADMIN_EMAIL = "gk@gmail.com";
+        const ADMIN_PASS = "gk-pitafi";
 
-    <div id="list" class="space-y-3"></div>
-</div>
+        const loginScreen = document.getElementById("loginScreen");
+        const app = document.getElementById("app");
 
-</main>
-</div>
+        // Check Login Status
+        if (localStorage.getItem("auth") === "1") {
+            loginScreen.classList.add("hidden");
+            app.classList.remove("hidden");
+            renderLinks();
+        }
 
-<!-- TOAST -->
-<div id="toast"
-class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-xl text-xs hidden">
-Copied
-</div>
+        // Handle Login
+        document.getElementById("loginForm").onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const pass = document.getElementById("password").value;
 
-<script>
-// ===== AUTH =====
-const ADMIN_EMAIL = "gk@gmail.com";
-const ADMIN_PASS = "gk-pitafi";
+            if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                localStorage.setItem("auth", "1");
+                location.reload();
+            } else {
+                document.getElementById("loginErr").classList.remove("hidden");
+            }
+        };
 
-const login = document.getElementById("login");
-const app = document.getElementById("app");
+        // Toggle Password Visibility
+        document.getElementById("togglePass").onclick = () => {
+            const passInput = document.getElementById("password");
+            const icon = document.querySelector("#togglePass i");
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                icon.classList.replace("ph-eye", "ph-eye-slash");
+            } else {
+                passInput.type = "password";
+                icon.classList.replace("ph-eye-slash", "ph-eye");
+            }
+        };
 
-if(localStorage.getItem("auth") === "1"){
-    login.classList.add("hidden");
-    app.classList.remove("hidden");
-}
+        function logout() {
+            localStorage.removeItem("auth");
+            location.reload();
+        }
 
-document.getElementById("loginForm").onsubmit = (e)=>{
-e.preventDefault();
+        /* ================= THEME (DARK/LIGHT) ================= */
+        const html = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
 
-if(email.value === ADMIN_EMAIL && password.value === ADMIN_PASS){
-    localStorage.setItem("auth","1");
-    location.reload();
-}else{
-    err.classList.remove("hidden");
-}
-};
+        function toggleTheme() {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
 
-// password toggle
-toggle.onclick = ()=>{
-password.type = password.type === "password" ? "text":"password";
-};
+        /* ================= MOBILE SIDEBAR ================= */
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        
+        document.getElementById("openSidebar").onclick = () => toggleSidebar(true);
+        document.getElementById("closeSidebar").onclick = () => toggleSidebar(false);
+        overlay.onclick = () => toggleSidebar(false);
 
-// ===== THEME =====
-function toggleTheme(){
-document.body.classList.toggle("bg-gray-900");
-document.body.classList.toggle("text-white");
-}
+        function toggleSidebar(show) {
+            if (show) {
+                sidebar.classList.remove("-translate-x-full");
+                overlay.classList.remove("hidden");
+            } else {
+                sidebar.classList.add("-translate-x-full");
+                overlay.classList.add("hidden");
+            }
+        }
 
-// ===== LOGOUT =====
-function logout(){
-localStorage.removeItem("auth");
-location.reload();
-}
+        /* ================= UPLOAD & CLOUDINARY ================= */
+        const cloudName = "dozknmpib";
+        const uploadPreset = "Gkpitafi";
+        
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadQueue = document.getElementById('uploadQueue');
+        const queueList = document.getElementById('queueList');
+        
+        let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
 
-// ===== UPLOAD =====
-const cloudName="dozknmpib";
-const uploadPreset="Gkpitafi";
+        // Drag & Drop Events
+        dropZone.onclick = () => fileInput.click();
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        };
+        fileInput.onchange = (e) => handleFiles(e.target.files);
 
-let links=[];
+        function handleFiles(files) {
+            if (!files.length) return;
+            uploadQueue.classList.remove('hidden');
 
-file.onchange = ()=>{
-preview.innerHTML="";
-[...file.files].forEach(f=>{
-const r=new FileReader();
-r.onload=e=>{
-preview.innerHTML += `<img src="${e.target.result}" class="w-full h-16 object-cover rounded-lg">`;
-};
-r.readAsDataURL(f);
-});
-};
+            Array.from(files).forEach(file => {
+                if (!file.type.startsWith('image/')) {
+                    showToast("Only images are allowed!", "error");
+                    return;
+                }
+                uploadFileToCloudinary(file);
+            });
+            fileInput.value = ''; // reset
+        }
 
-async function uploadFiles(){
-const files=file.files;
-if(!files.length) return;
+        function uploadFileToCloudinary(file) {
+            const fileId = Math.random().toString(36).substring(7);
+            
+            // Add UI to queue
+            const queueItem = document.createElement('div');
+            queueItem.id = `q_${fileId}`;
+            queueItem.className = 'bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center gap-3 fade-in';
+            queueItem.innerHTML = `
+                <i class="ph ph-image text-2xl text-gray-400"></i>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold truncate mb-1">${file.name}</p>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                        <div id="prog_${fileId}" class="bg-brand h-1.5 rounded-full transition-all duration-200" style="width: 0%"></div>
+                    </div>
+                </div>
+                <span id="perc_${fileId}" class="text-xs font-bold text-gray-500">0%</span>
+            `;
+            queueList.prepend(queueItem);
 
-for(let i=0;i<files.length;i++){
-const fd=new FormData();
-fd.append("file",files[i]);
-fd.append("upload_preset",uploadPreset);
+            // Upload via XMLHttpRequest to get real progress
+            const fd = new FormData();
+            fd.append("file", file);
+            fd.append("upload_preset", uploadPreset);
 
-const res=await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,{
-method:"POST",
-body:fd
-});
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
 
-const data=await res.json();
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    document.getElementById(`prog_${fileId}`).style.width = percent + '%';
+                    document.getElementById(`perc_${fileId}`).innerText = percent + '%';
+                }
+            };
 
-if(data.secure_url){
-const url=data.secure_url;
-links.unshift(url);
-addLink(url);
-}
-}
-}
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    const newLink = { url: data.secure_url, name: file.name, id: Date.now().toString() };
+                    
+                    savedLinks.unshift(newLink);
+                    saveToLocal();
+                    renderLinks();
+                    showToast("Image Uploaded Successfully!", "success");
+                    
+                    // Remove from queue
+                    setTimeout(() => queueItem.remove(), 1000);
+                    if(queueList.children.length <= 1) setTimeout(() => uploadQueue.classList.add('hidden'), 1000);
 
-// ===== ADD LINK =====
-function addLink(url){
-const div=document.createElement("div");
-div.className="flex gap-2";
+                } else {
+                    showToast("Upload Failed!", "error");
+                    queueItem.innerHTML = `<span class="text-xs text-red-500">Upload Failed</span>`;
+                }
+            };
+            xhr.send(fd);
+        }
 
-div.innerHTML=`
-<input value="${url}" readonly class="flex-1 p-2 bg-gray-100 rounded-lg text-xs">
-<button onclick="copy('${url}')" class="bg-black text-white px-3 rounded-lg text-xs">Copy</button>
-`;
+        /* ================= GALLERY & LINKS MANAGEMENT ================= */
+        const linksContainer = document.getElementById('linksContainer');
+        const emptyState = document.getElementById('emptyState');
+        const totalCount = document.getElementById('totalCount');
 
-list.prepend(div);
-}
+        function saveToLocal() {
+            localStorage.setItem('gk_links', JSON.stringify(savedLinks));
+        }
 
-// ===== COPY =====
-function copy(text){
-navigator.clipboard.writeText(text);
-toastShow();
-}
+        function renderLinks(filter = "") {
+            const filteredLinks = savedLinks.filter(item => 
+                item.name.toLowerCase().includes(filter.toLowerCase()) || 
+                item.url.toLowerCase().includes(filter.toLowerCase())
+            );
 
-function copyAll(){
-navigator.clipboard.writeText(links.join("\n"));
-toastShow("All Copied");
-}
+            totalCount.innerText = savedLinks.length;
 
-// ===== TOAST =====
-function toastShow(msg="Copied"){
-toast.innerText=msg;
-toast.classList.remove("hidden");
-setTimeout(()=>toast.classList.add("hidden"),1500);
-}
+            if (filteredLinks.length === 0) {
+                emptyState.style.display = 'flex';
+                Array.from(linksContainer.children).forEach(child => { if(child.id !== 'emptyState') child.remove() });
+                return;
+            }
 
-// ===== SEARCH =====
-search.oninput=()=>{
-const val=search.value.toLowerCase();
-document.querySelectorAll("#list div").forEach(el=>{
-el.style.display=el.innerText.toLowerCase().includes(val)?"flex":"none";
-});
-};
-</script>
+            emptyState.style.display = 'none';
+            
+            // Clear current list except empty state
+            Array.from(linksContainer.children).forEach(child => { if(child.id !== 'emptyState') child.remove() });
 
+            filteredLinks.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-brand/50 transition-colors fade-in group";
+                div.innerHTML = `
+                    <img src="${item.url}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold truncate">${item.name}</p>
+                        <a href="${item.url}" target="_blank" class="text-xs text-blue-500 hover:underline truncate block w-4/5">${item.url}</a>
+                    </div>
+                    <div class="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="copyText('${item.url}')" class="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors" title="Copy Link">
+                            <i class="ph ph-copy"></i>
+                        </button>
+                        <button onclick="deleteLink('${item.id}')" class="w-8 h-8 flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-500 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors" title="Delete">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </div>
+                `;
+                linksContainer.appendChild(div);
+            });
+        }
+
+        // Search Links
+        document.getElementById('searchInput').oninput = (e) => {
+            renderLinks(e.target.value);
+        };
+
+        // Actions
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            showToast("Link Copied!", "success");
+        }
+
+        function copyAllLinks() {
+            if(savedLinks.length === 0) return showToast("No links to copy", "error");
+            const allUrls = savedLinks.map(l => l.url).join("\n");
+            navigator.clipboard.writeText(allUrls);
+            showToast(`${savedLinks.length} Links Copied!`, "success");
+        }
+
+        function deleteLink(id) {
+            if(confirm("Are you sure you want to remove this image from the list?")) {
+                savedLinks = savedLinks.filter(item => item.id !== id);
+                saveToLocal();
+                renderLinks(document.getElementById('searchInput').value);
+                showToast("Link Removed", "success");
+            }
+        }
+
+        /* ================= TOAST NOTIFICATIONS ================= */
+        let toastTimeout;
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById("toast");
+            const toastIcon = document.getElementById("toastIcon");
+            const toastMsg = document.getElementById("toastMsg");
+
+            clearTimeout(toastTimeout);
+
+            if (type === "success") {
+                toast.className = "fixed bottom-6 right-6 transform translate-y-0 opacity-100 transition-all duration-300 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl font-medium text-sm bg-gray-900 text-white dark:bg-white dark:text-gray-900";
+                toastIcon.className = "ph ph-check-circle text-green-400 dark:text-green-600 text-xl";
+            } else {
+                toast.className = "fixed bottom-6 right-6 transform translate-y-0 opacity-100 transition-all duration-300 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl shadow-xl font-medium text-sm bg-red-600 text-white";
+                toastIcon.className = "ph ph-warning-circle text-white text-xl";
+            }
+
+            toastMsg.innerText = msg;
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.replace("translate-y-0", "translate-y-20");
+                toast.classList.replace("opacity-100", "opacity-0");
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
