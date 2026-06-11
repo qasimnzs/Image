@@ -157,21 +157,27 @@
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm">
                         <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
                         
-                        <!-- FIX: Hidden input is now OUTSIDE the label completely -->
-                        <input type="file" id="fileInput" multiple class="hidden" accept="image/*">
-                        
-                        <!-- Drag & Drop Zone Label -->
-                        <label for="fileInput" id="dropZone" class="block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4 pointer-events-none">
-                                <i class="ph ph-images"></i>
-                            </div>
-                            <p class="font-semibold text-gray-700 dark:text-gray-200 pointer-events-none">Drag & Drop images here</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4 pointer-events-none">or click to browse files</p>
+                        <!-- THE ULTIMATE FIX: Position Relative Box with Position Absolute Input inside -->
+                        <div id="dropZone" class="relative block border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center transition-all hover:bg-gray-50 dark:hover:bg-gray-700 overflow-hidden group">
                             
-                            <span class="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:scale-105 transition-transform pointer-events-none">
-                                Select Images
-                            </span>
-                        </label>
+                            <!-- This input covers the entire box 100%, user physically taps it, but it's invisible -->
+                            <input type="file" id="fileInput" multiple accept="image/*" 
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
+                                   onchange="window.processNativeFiles(this)">
+
+                            <!-- UI Layer (Behind the input) -->
+                            <div class="pointer-events-none relative z-10">
+                                <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 group-hover:bg-brand/10 group-hover:text-brand rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mb-4 transition-colors">
+                                    <i class="ph ph-images"></i>
+                                </div>
+                                <p class="font-semibold text-gray-700 dark:text-gray-200">Tap here to Select Images</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">or drag and drop files</p>
+                                
+                                <span class="inline-block bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl font-semibold text-sm shadow-md">
+                                    Select Images
+                                </span>
+                            </div>
+                        </div>
 
                         <!-- STAGING / PREVIEW AREA -->
                         <div id="stagingArea" class="mt-6 hidden fade-in bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
@@ -313,7 +319,6 @@
         const uploadPreset = "Gkpitafi";
         
         const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
         const stagingArea = document.getElementById('stagingArea');
         const previewList = document.getElementById('previewList');
         const selectedCount = document.getElementById('selectedCount');
@@ -324,32 +329,43 @@
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
         let selectedFilesArray = []; 
 
-        // Drag events for Desktop
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+        // GLOBALLY ATTACHED NATIVE FILE HANDLER
+        window.processNativeFiles = function(inputElement) {
+            try {
+                const files = inputElement.files;
+                if (!files || files.length === 0) return;
+                
+                handleFilesProcessing(files);
+                
+                // Reset input instantly so user can re-select same file again if needed
+                inputElement.value = '';
+            } catch (err) {
+                showToast("Error processing files", "error");
+                console.error(err);
+            }
+        };
+
+        // DRAG AND DROP (FOR PC/DESKTOP)
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('border-brand', 'bg-gray-50', 'dark:bg-gray-700'); };
+        dropZone.ondragleave = () => { dropZone.classList.remove('border-brand', 'bg-gray-50', 'dark:bg-gray-700'); };
         dropZone.ondrop = (e) => {
             e.preventDefault();
-            dropZone.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
-        };
-        
-        // FIX: Modern Event Listener instead of simple onchange
-        fileInput.addEventListener('change', function(e) {
-            if (this.files && this.files.length > 0) {
-                handleFiles(this.files);
+            dropZone.classList.remove('border-brand', 'bg-gray-50', 'dark:bg-gray-700');
+            if(e.dataTransfer.files.length > 0) {
+                handleFilesProcessing(e.dataTransfer.files);
             }
-        });
+        };
 
-        // 1. ADD TO STAGING AREA (PREVIEW)
-        function handleFiles(files) {
-            if (!files || files.length === 0) return;
-
+        // THE CORE PROCESSING FUNCTION (FIXED FOR ANDROID)
+        function handleFilesProcessing(files) {
             let addedCount = 0;
 
             Array.from(files).forEach(file => {
-                if (!file.type.startsWith('image/')) {
-                    showToast("Only images are allowed!", "error");
-                    return;
+                // BUG FIX: Android sometimes returns empty file.type. 
+                // We only reject if it EXPLICITLY is a non-image (like video/mp4).
+                if (file.type && !file.type.includes('image')) {
+                    console.log("Rejected non-image:", file.name, file.type);
+                    return; 
                 }
                 
                 const isDuplicate = selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size);
@@ -360,16 +376,16 @@
                     addedCount++;
                 }
             });
-
-            fileInput.value = ''; // Reset input
             
             if (addedCount > 0) {
                 renderPreview();
-                showToast(`${addedCount} images selected for upload`, "success");
+                showToast(`${addedCount} images selected!`, "success");
+            } else {
+                showToast("No new images added.", "error");
             }
         }
 
-        // 2. RENDER THE PREVIEW GRID
+        // RENDER THE PREVIEW GRID
         function renderPreview() {
             if (selectedFilesArray.length === 0) {
                 stagingArea.classList.add('hidden');
@@ -395,19 +411,17 @@
             });
         }
 
-        // Remove individual file from preview
         function removeSelected(id) {
             selectedFilesArray = selectedFilesArray.filter(item => item.id !== id);
             renderPreview();
         }
 
-        // Clear all files from preview
         function clearSelection() {
             selectedFilesArray = [];
             renderPreview();
         }
 
-        // 3. START ACTUAL UPLOAD
+        // START ACTUAL UPLOAD
         function startUpload() {
             if (selectedFilesArray.length === 0) return;
             
