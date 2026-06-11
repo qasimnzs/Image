@@ -35,6 +35,9 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+        
+        /* Drag Active State */
+        .drag-active { background-color: rgba(79, 70, 229, 0.15) !important; border-color: #4338CA !important; }
     </style>
 </head>
 
@@ -47,20 +50,20 @@
             <p class="text-center text-gray-500 mb-8">Login to continue</p>
 
             <form id="loginForm" class="space-y-4">
-                <input id="email" type="email" placeholder="Email Address"
+                <input id="email" type="email" placeholder="Email Address" required
                     class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand font-medium">
 
                 <div class="relative">
-                    <input id="password" type="password" placeholder="Password"
+                    <input id="password" type="password" placeholder="Password" required
                         class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand font-medium">
-                    <button type="button" id="togglePass" class="absolute right-4 top-4 text-gray-500">
+                    <button type="button" id="togglePass" aria-label="Toggle Password Visibility" class="absolute right-4 top-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                         <i class="ph ph-eye text-xl"></i>
                     </button>
                 </div>
 
                 <p id="loginErr" class="text-red-500 text-sm text-center hidden font-bold">Wrong credentials</p>
 
-                <button class="w-full bg-brand hover:bg-brandHover text-white p-4 rounded-xl font-bold transition-all shadow-lg">
+                <button type="submit" class="w-full bg-brand hover:bg-brandHover text-white p-4 rounded-xl font-bold transition-all shadow-lg">
                     LOGIN
                 </button>
             </form>
@@ -82,7 +85,7 @@
                         <span class="text-xs text-brand font-semibold">PRO VERSION</span>
                     </div>
                 </div>
-                <button id="closeSidebar" class="md:hidden text-gray-500 text-2xl"><i class="ph ph-x"></i></button>
+                <button id="closeSidebar" aria-label="Close Sidebar" class="md:hidden text-gray-500 text-2xl hover:text-red-500"><i class="ph ph-x"></i></button>
             </div>
 
             <nav class="flex-1 px-4 py-4 space-y-2">
@@ -94,13 +97,13 @@
             <div class="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-4 px-2">
                     <span class="text-sm font-semibold">Dark Mode</span>
-                    <button onclick="toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-gray-600 relative">
+                    <button onclick="toggleTheme()" aria-label="Toggle Dark Mode" class="w-12 h-6 rounded-full bg-gray-200 dark:bg-gray-600 relative transition-colors">
                         <div id="themeKnob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 flex items-center justify-center dark:translate-x-6 transition-transform shadow">
                             <i class="ph ph-moon text-xs text-brand"></i>
                         </div>
                     </button>
                 </div>
-                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 rounded-xl font-semibold hover:bg-red-100 transition-colors">
+                <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 rounded-xl font-semibold hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
                     <i class="ph ph-sign-out"></i> Logout
                 </button>
             </div>
@@ -114,7 +117,7 @@
             
             <!-- HEADER -->
             <header class="glass sticky top-0 z-20 px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <button id="openSidebar" class="md:hidden text-2xl"><i class="ph ph-list"></i></button>
+                <button id="openSidebar" aria-label="Open Sidebar" class="md:hidden text-2xl"><i class="ph ph-list"></i></button>
                 
                 <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl flex items-center gap-3 ml-auto shadow-sm">
                     <div class="p-1.5 bg-green-100 text-green-600 rounded-lg"><i class="ph ph-image"></i></div>
@@ -134,18 +137,17 @@
                             <i class="ph ph-upload-simple text-brand"></i> Upload Media
                         </h2>
                         
-                        <!-- 100% PURE FOOL-PROOF DROPZONE -->
-                        <div id="dropZone" class="relative border-2 border-brand border-dashed bg-brand/5 p-10 text-center rounded-3xl hover:bg-brand/10 transition-colors">
+                        <!-- DROPZONE -->
+                        <div id="dropZone" class="relative border-2 border-brand border-dashed bg-brand/5 p-10 text-center rounded-3xl transition-all duration-200 hover:bg-brand/10">
                             
-                            <!-- Notice the onchange event inline which guarantees execution -->
                             <input type="file" id="fileInput" multiple accept="image/*" 
-                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                                    onchange="processNativeFiles(this)">
                             
                             <div class="pointer-events-none">
                                 <i class="ph ph-images text-5xl text-brand mb-3"></i>
-                                <p class="text-lg font-bold text-gray-800 dark:text-gray-200">Tap to select images</p>
-                                <p class="text-sm text-gray-500 mt-1">Select from your phone gallery</p>
+                                <p class="text-lg font-bold text-gray-800 dark:text-gray-200">Tap or drag images here</p>
+                                <p class="text-sm text-gray-500 mt-1">Select from your device</p>
                             </div>
 
                         </div>
@@ -195,6 +197,8 @@
                             <p class="font-medium">No images uploaded yet.</p>
                         </div>
                     </div>
+                    
+                    <p class="text-xs text-center text-gray-400 mt-4"><i class="ph ph-info"></i> Deleting removes from this device's history, not the Cloudinary server.</p>
                 </div>
 
             </main>
@@ -202,13 +206,14 @@
     </div>
 
     <!-- TOAST -->
-    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-xl shadow-2xl font-bold text-sm transition-opacity duration-300 z-50 flex items-center gap-2 opacity-0" style="display: none;">
-        <i class="ph ph-info text-xl text-brand"></i>
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-3 rounded-xl shadow-2xl font-bold text-sm transition-opacity duration-300 z-50 flex items-center gap-2 opacity-0 pointer-events-none" style="display: none;">
+        <i class="ph ph-check-circle text-xl text-green-500"></i>
         <span id="toastMsg"></span>
     </div>
 
     <script>
         // ================= AUTHENTICATION =================
+        // WARNING: Client-side authentication is fundamentally insecure.
         const ADMIN_EMAIL = "gk@gmail.com";
         const ADMIN_PASS = "gk-pitafi";
 
@@ -230,7 +235,14 @@
 
         document.getElementById("togglePass").onclick = ()=>{
             const p = document.getElementById("password");
-            p.type = p.type === "password" ? "text" : "password";
+            const icon = document.querySelector("#togglePass i");
+            if (p.type === "password") {
+                p.type = "text";
+                icon.classList.replace("ph-eye", "ph-eye-slash");
+            } else {
+                p.type = "password";
+                icon.classList.replace("ph-eye-slash", "ph-eye");
+            }
         };
 
         function logout(){
@@ -259,7 +271,7 @@
         document.getElementById("sidebarOverlay").onclick = closeSide;
 
 
-        // ================= IMAGE SELECTION (BUG FIXED FOR ANDROID) =================
+        // ================= IMAGE SELECTION & DRAG-AND-DROP =================
         const cloudName = "dozknmpib";
         const uploadPreset = "Gkpitafi";
         
@@ -269,18 +281,39 @@
         const stagingArea = document.getElementById("stagingArea");
         const previewList = document.getElementById("previewList");
         const selectedCount = document.getElementById("selectedCount");
+        const dropZone = document.getElementById("dropZone");
 
-        // THE ULTIMATE FIX: This runs instantly from the HTML onchange event
+        // Drag and drop visual feedback
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-active'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
+        });
+
+        // Handle Dropped Files
+        dropZone.addEventListener('drop', handleDrop, false);
+        function handleDrop(e) {
+            let dt = e.dataTransfer;
+            // Create a mock object that won't throw an error when value is reset
+            let mockInput = { files: dt.files }; 
+            window.processNativeFiles(mockInput);
+        }
+
+        // Process files (Input or Drop)
         window.processNativeFiles = function(input) {
             try {
                 if (!input.files || input.files.length === 0) return;
                 
-                // INSTANTLY copy files to an array. (Solves Android memory clear bug)
                 const filesArray = Array.from(input.files);
                 let added = 0;
 
                 filesArray.forEach(file => {
-                    // Safety check (Android sometimes returns missing MIME type)
                     if (file.type && !file.type.startsWith("image/")) return;
 
                     const exists = selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size);
@@ -300,22 +333,15 @@
                     showToast(`${added} Images Selected!`);
                 }
 
-                // Reset input field safely AFTER processing
-                setTimeout(() => { input.value = ""; }, 100);
+                // Safely reset HTML inputs ONLY
+                if (input instanceof HTMLInputElement) {
+                    setTimeout(() => { input.value = ""; }, 100);
+                }
 
             } catch (err) {
                 alert("Error processing images: " + err.message);
             }
         };
-
-        // For PC Drag and Drop
-        const dropZone = document.getElementById("dropZone");
-        dropZone.addEventListener("dragover", e => e.preventDefault());
-        dropZone.addEventListener("drop", e => {
-            e.preventDefault();
-            const fakeInput = { files: e.dataTransfer.files, value: "" };
-            window.processNativeFiles(fakeInput);
-        });
 
         function renderPreview() {
             if (selectedFilesArray.length === 0) {
@@ -329,10 +355,10 @@
 
             selectedFilesArray.forEach(item => {
                 const div = document.createElement("div");
-                div.className = "relative rounded-xl overflow-hidden border border-gray-300 dark:border-gray-600 bg-gray-200 dark:bg-gray-800 aspect-square";
+                div.className = "relative rounded-xl overflow-hidden border border-gray-300 dark:border-gray-600 bg-gray-200 dark:bg-gray-800 aspect-square group";
                 div.innerHTML = `
                     <img src="${item.url}" class="w-full h-full object-cover">
-                    <button onclick="removeSelected('${item.id}')" class="absolute top-1.5 right-1.5 bg-red-600 text-white w-7 h-7 rounded-full text-sm flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                    <button onclick="removeSelected('${item.id}')" aria-label="Remove Image" class="absolute top-1.5 right-1.5 bg-red-600 text-white w-7 h-7 rounded-full text-sm flex items-center justify-center shadow-lg hover:scale-110 transition-transform opacity-100 lg:opacity-0 group-hover:opacity-100">
                         <i class="ph ph-x"></i>
                     </button>
                 `;
@@ -396,7 +422,7 @@
                     savedLinks.unshift({ url: data.secure_url, name: file.name, id: Date.now().toString() });
                     
                     localStorage.setItem('gk_links', JSON.stringify(savedLinks));
-                    renderLinks();
+                    renderLinks(document.getElementById('searchInput').value); // Maintain search state
                     showToast("Uploaded Successfully!");
                     
                     setTimeout(() => queueItem.remove(), 1000);
@@ -433,15 +459,15 @@
                 const div = document.createElement('div');
                 div.className = "flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-brand/50 transition-colors";
                 div.innerHTML = `
-                    <img src="${item.url}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
+                    <img src="${item.url}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">${item.name}</p>
+                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate" title="${item.name}">${item.name}</p>
                         <a href="${item.url}" target="_blank" class="text-xs text-brand hover:underline truncate block w-5/6">${item.url}</a>
                     </div>
-                    <button onclick="copyText('${item.url}')" class="p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300">
+                    <button onclick="copyText('${item.url}')" aria-label="Copy Link" class="p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300">
                         <i class="ph ph-copy text-lg"></i>
                     </button>
-                    <button onclick="deleteLink('${item.id}')" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 rounded-xl shadow-sm hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
+                    <button onclick="deleteLink('${item.id}')" aria-label="Delete Locally" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-600 rounded-xl shadow-sm hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
                         <i class="ph ph-trash text-lg"></i>
                     </button>
                 `;
@@ -463,11 +489,11 @@
         }
 
         function deleteLink(id) {
-            if(confirm("Delete this image?")) {
+            if(confirm("Remove this image from your dashboard? (This will not delete it from Cloudinary servers)")) {
                 savedLinks = savedLinks.filter(item => item.id !== id);
                 localStorage.setItem('gk_links', JSON.stringify(savedLinks));
                 renderLinks(document.getElementById('searchInput').value);
-                showToast("Deleted");
+                showToast("Removed from dashboard");
             }
         }
 
