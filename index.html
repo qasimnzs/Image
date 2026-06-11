@@ -213,7 +213,6 @@
 
     <script>
         // ================= AUTHENTICATION =================
-        // WARNING: Client-side authentication is fundamentally insecure.
         const ADMIN_EMAIL = "gk@gmail.com";
         const ADMIN_PASS = "gk-pitafi";
 
@@ -296,16 +295,13 @@
             dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-active'), false);
         });
 
-        // Handle Dropped Files
         dropZone.addEventListener('drop', handleDrop, false);
         function handleDrop(e) {
             let dt = e.dataTransfer;
-            // Create a mock object that won't throw an error when value is reset
             let mockInput = { files: dt.files }; 
             window.processNativeFiles(mockInput);
         }
 
-        // Process files (Input or Drop)
         window.processNativeFiles = function(input) {
             try {
                 if (!input.files || input.files.length === 0) return;
@@ -333,7 +329,6 @@
                     showToast(`${added} Images Selected!`);
                 }
 
-                // Safely reset HTML inputs ONLY
                 if (input instanceof HTMLInputElement) {
                     setTimeout(() => { input.value = ""; }, 100);
                 }
@@ -377,7 +372,7 @@
         }
 
 
-        // ================= CLOUDINARY UPLOAD =================
+        // ================= CLOUDINARY UPLOAD (FIXED WITH ERRORS) =================
         function startUpload() {
             if (selectedFilesArray.length === 0) return;
             
@@ -418,19 +413,41 @@
 
             xhr.onload = () => {
                 if (xhr.status === 200) {
+                    // Success
                     const data = JSON.parse(xhr.responseText);
                     savedLinks.unshift({ url: data.secure_url, name: file.name, id: Date.now().toString() });
                     
                     localStorage.setItem('gk_links', JSON.stringify(savedLinks));
-                    renderLinks(document.getElementById('searchInput').value); // Maintain search state
+                    renderLinks(document.getElementById('searchInput').value);
                     showToast("Uploaded Successfully!");
                     
                     setTimeout(() => queueItem.remove(), 1000);
                     if(queueList.children.length <= 1) setTimeout(() => document.getElementById('uploadQueue').classList.add('hidden'), 1000);
                 } else {
-                    queueItem.innerHTML += `<span class="text-red-500">Failed</span>`;
+                    // Fail due to Cloudinary Issue (e.g., Unsigned preset missing)
+                    let errorMsg = "Unknown Error";
+                    try {
+                        const errorData = JSON.parse(xhr.responseText);
+                        errorMsg = errorData.error.message;
+                    } catch(e) {}
+                    
+                    alert(`❌ Upload Failed for ${file.name}\n\nReason: ${errorMsg}\n\n👉 Kindly check your Cloudinary settings and make sure Upload Preset "${uploadPreset}" is set to "Unsigned".`);
+                    
+                    const percDiv = document.getElementById(`perc_${fileId}`);
+                    percDiv.innerText = 'Failed';
+                    percDiv.classList.replace('text-brand', 'text-red-500');
+                    percDiv.classList.replace('bg-brand/10', 'bg-red-100');
                 }
             };
+            
+            xhr.onerror = () => {
+                alert("Network Error: Could not connect to Cloudinary. Check your internet connection.");
+                const percDiv = document.getElementById(`perc_${fileId}`);
+                percDiv.innerText = 'Error';
+                percDiv.classList.replace('text-brand', 'text-red-500');
+                percDiv.classList.replace('bg-brand/10', 'bg-red-100');
+            }
+
             xhr.send(fd);
         }
 
