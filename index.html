@@ -128,7 +128,7 @@
                 </div>
             </header>
 
-            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_1.5fr] gap-6">
+            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_1.5fr] gap-6 pb-20">
 
                 <!-- LEFT: UPLOAD SECTION -->
                 <div class="space-y-6">
@@ -138,7 +138,7 @@
                         </h2>
                         
                         <!-- DROPZONE -->
-                        <div id="dropZone" class="relative border-2 border-brand border-dashed bg-brand/5 p-10 text-center rounded-3xl transition-all duration-200 hover:bg-brand/10">
+                        <div id="dropZone" class="relative border-2 border-brand border-dashed bg-brand/5 p-10 text-center rounded-3xl transition-all duration-200 hover:bg-brand/10 cursor-pointer">
                             
                             <input type="file" id="fileInput" multiple accept="image/*" 
                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
@@ -153,7 +153,7 @@
                         </div>
 
                         <!-- STAGING / PREVIEW AREA -->
-                        <div id="stagingArea" class="hidden mt-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-5 rounded-2xl shadow-sm">
+                        <div id="stagingArea" class="hidden mt-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-5 rounded-2xl shadow-sm min-h-[200px]">
                             <div class="flex justify-between items-center mb-4">
                                 <p class="font-bold text-gray-700 dark:text-gray-300">Selected: <span id="selectedCount" class="text-brand text-lg">0</span></p>
                                 <button type="button" onclick="clearSelection()" class="text-xs bg-red-100 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-200 transition-colors">Clear All</button>
@@ -281,6 +281,7 @@
         const previewList = document.getElementById("previewList");
         const selectedCount = document.getElementById("selectedCount");
         const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
 
         // Drag and drop visual feedback
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -301,6 +302,11 @@
             let mockInput = { files: dt.files }; 
             window.processNativeFiles(mockInput);
         }
+
+        // Make dropzone clickable on mobile
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        }, false);
 
         window.processNativeFiles = function(input) {
             try {
@@ -327,6 +333,10 @@
                 if (added > 0) {
                     renderPreview();
                     showToast(`${added} Images Selected!`);
+                    // Scroll to staging area on mobile
+                    setTimeout(() => {
+                        stagingArea.scrollIntoView({ behavior: "smooth" });
+                    }, 100);
                 }
 
                 if (input instanceof HTMLInputElement) {
@@ -359,6 +369,9 @@
                 `;
                 previewList.appendChild(div);
             });
+
+            // Ensure visibility on mobile
+            stagingArea.style.display = 'block';
         }
 
         function removeSelected(id) {
@@ -369,10 +382,11 @@
         function clearSelection() {
             selectedFilesArray = [];
             renderPreview();
+            fileInput.value = "";
         }
 
 
-        // ================= CLOUDINARY UPLOAD (FIXED WITH ERRORS) =================
+        // ================= CLOUDINARY UPLOAD =================
         function startUpload() {
             if (selectedFilesArray.length === 0) return;
             
@@ -413,7 +427,6 @@
 
             xhr.onload = () => {
                 if (xhr.status === 200) {
-                    // Success
                     const data = JSON.parse(xhr.responseText);
                     savedLinks.unshift({ url: data.secure_url, name: file.name, id: Date.now().toString() });
                     
@@ -424,14 +437,13 @@
                     setTimeout(() => queueItem.remove(), 1000);
                     if(queueList.children.length <= 1) setTimeout(() => document.getElementById('uploadQueue').classList.add('hidden'), 1000);
                 } else {
-                    // Fail due to Cloudinary Issue (e.g., Unsigned preset missing)
                     let errorMsg = "Unknown Error";
                     try {
                         const errorData = JSON.parse(xhr.responseText);
                         errorMsg = errorData.error.message;
                     } catch(e) {}
                     
-                    alert(`❌ Upload Failed for ${file.name}\n\nReason: ${errorMsg}\n\n👉 Kindly check your Cloudinary settings and make sure Upload Preset "${uploadPreset}" is set to "Unsigned".`);
+                    alert(`❌ Upload Failed for ${file.name}\n\nReason: ${errorMsg}`);
                     
                     const percDiv = document.getElementById(`perc_${fileId}`);
                     percDiv.innerText = 'Failed';
@@ -441,7 +453,7 @@
             };
             
             xhr.onerror = () => {
-                alert("Network Error: Could not connect to Cloudinary. Check your internet connection.");
+                alert("Network Error");
                 const percDiv = document.getElementById(`perc_${fileId}`);
                 percDiv.innerText = 'Error';
                 percDiv.classList.replace('text-brand', 'text-red-500');
@@ -476,10 +488,10 @@
                 const div = document.createElement('div');
                 div.className = "flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-brand/50 transition-colors";
                 div.innerHTML = `
-                    <img src="${item.url}" alt="${item.name}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
+                    <img src="\( {item.url}" alt=" \){item.name}" class="w-12 h-12 rounded-xl object-cover border border-gray-200 dark:border-gray-700">
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate" title="${item.name}">${item.name}</p>
-                        <a href="${item.url}" target="_blank" class="text-xs text-brand hover:underline truncate block w-5/6">${item.url}</a>
+                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate" title="\( {item.name}"> \){item.name}</p>
+                        <a href="\( {item.url}" target="_blank" class="text-xs text-brand hover:underline truncate block w-5/6"> \){item.url}</a>
                     </div>
                     <button onclick="copyText('${item.url}')" aria-label="Copy Link" class="p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300">
                         <i class="ph ph-copy text-lg"></i>
