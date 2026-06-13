@@ -28,7 +28,7 @@
     </style>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
     <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 z-50">
@@ -39,116 +39,215 @@
                 <input id="email" type="email" placeholder="Email Address" required class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand font-medium">
                 <div class="relative">
                     <input id="password" type="password" placeholder="Password" required class="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-800 outline-none focus:ring-2 ring-brand font-medium">
-                    <button type="button" id="togglePass" class="absolute right-4 top-4 text-gray-500"><i class="ph ph-eye text-xl"></i></button>
+                    <button type="button" id="togglePass" class="absolute right-4 top-4 text-gray-500 hover:text-gray-700"><i class="ph ph-eye text-xl"></i></button>
                 </div>
-                <p id="loginErr" class="text-red-500 text-sm text-center hidden">Wrong credentials</p>
-                <button type="submit" class="w-full bg-brand hover:bg-brandHover text-white p-4 rounded-xl font-bold">LOGIN</button>
+                <p id="loginErr" class="text-red-500 text-sm text-center hidden font-bold">Wrong credentials</p>
+                <button type="submit" class="w-full bg-brand hover:bg-brandHover text-white p-4 rounded-xl font-bold transition-all">LOGIN</button>
             </form>
         </div>
     </div>
 
     <!-- MAIN APP -->
     <div id="app" class="hidden flex h-screen overflow-hidden">
-        <!-- Sidebar same -->
-        <aside id="sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col fixed md:relative z-40 h-full -translate-x-full md:translate-x-0">
-            <!-- Sidebar content same as original -->
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col fixed md:relative z-40 h-full transition-transform -translate-x-full md:translate-x-0">
             <div class="p-6 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-brand text-white rounded-xl flex items-center justify-center text-xl"><i class="ph ph-cloud-arrow-up"></i></div>
-                    <div><h2 class="font-bold">GK CDN</h2><span class="text-xs text-brand">PRO</span></div>
+                    <div class="w-10 h-10 bg-brand text-white rounded-xl flex items-center justify-center text-xl shadow-md">
+                        <i class="ph ph-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-lg">GK CDN</h2>
+                        <span class="text-xs text-brand font-semibold">PRO VERSION</span>
+                    </div>
                 </div>
-                <button id="closeSidebar" class="md:hidden text-2xl"><i class="ph ph-x"></i></button>
+                <button id="closeSidebar" class="md:hidden text-2xl text-gray-500"><i class="ph ph-x"></i></button>
             </div>
-            <!-- Rest of sidebar -->
+            <nav class="flex-1 px-4 py-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-brand/10 text-brand rounded-xl font-semibold">
+                    <i class="ph ph-squares-four text-xl"></i> Dashboard
+                </a>
+            </nav>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <button onclick="toggleTheme()" class="w-full flex justify-between items-center px-4 py-3">
+                    <span class="font-semibold">Dark Mode</span>
+                    <div class="w-12 h-6 bg-gray-200 dark:bg-gray-600 rounded-full relative">
+                        <div id="themeKnob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 dark:translate-x-6 transition-transform"></div>
+                    </div>
+                </button>
+                <button onclick="logout()" class="w-full mt-3 flex items-center justify-center gap-2 bg-red-50 text-red-600 dark:bg-red-500/10 rounded-xl py-3 font-semibold">
+                    <i class="ph ph-sign-out"></i> Logout
+                </button>
+            </div>
         </aside>
 
-        <div class="flex-1 flex flex-col overflow-y-auto">
-            <header class="glass sticky top-0 z-20 px-6 py-4 border-b flex justify-between">
-                <button id="openSidebar" class="md:hidden"><i class="ph ph-list text-2xl"></i></button>
-                <div class="ml-auto bg-white dark:bg-gray-800 px-4 py-2 rounded-xl flex gap-3">
-                    <div class="text-green-600"><i class="ph ph-image"></i></div>
-                    <div><p class="text-xs">Total Uploads</p><p id="totalCount" class="font-bold">0</p></div>
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col h-full overflow-y-auto">
+            <header class="glass sticky top-0 z-20 px-6 py-4 border-b flex justify-between items-center">
+                <button id="openSidebar" class="md:hidden text-2xl"><i class="ph ph-list"></i></button>
+                <div class="ml-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl flex items-center gap-3">
+                    <div class="p-1.5 bg-green-100 text-green-600 rounded-lg"><i class="ph ph-image"></i></div>
+                    <div>
+                        <p class="text-xs text-gray-500">Total Uploads</p>
+                        <p id="totalCount" class="font-bold">0</p>
+                    </div>
                 </div>
             </header>
 
-            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_1.5fr] gap-6">
+            <main class="p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-[1fr_1.5fr] gap-6 pb-20">
 
-                <!-- UPLOAD SECTION - FIXED -->
-                <div>
+                <!-- UPLOAD SECTION -->
+                <div class="space-y-6">
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border shadow-sm">
-                        <h2 class="font-bold text-2xl mb-6 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
+                        <h2 class="font-bold text-xl mb-6 flex items-center gap-2"><i class="ph ph-upload-simple text-brand"></i> Upload Media</h2>
 
-                        <div id="dropZone" class="border-2 border-dashed border-brand rounded-3xl p-10 text-center hover:bg-brand/5 transition-all cursor-pointer">
-                            <i class="ph ph-images text-7xl text-brand mb-4"></i>
-                            <p class="text-xl font-semibold">Drag & Drop Images Here</p>
-                            <p class="text-gray-500 mt-1">or tap button below</p>
+                        <!-- Dropzone -->
+                        <div id="dropZone" class="border-2 border-dashed border-brand bg-brand/5 p-12 rounded-3xl text-center cursor-pointer transition-all">
+                            <i class="ph ph-images text-6xl text-brand mb-4 block"></i>
+                            <p class="text-lg font-bold">Drag images here</p>
+                            <p class="text-sm text-gray-500">or tap below</p>
                         </div>
 
-                        <button onclick="triggerFileSelect()" class="mt-6 w-full bg-brand hover:bg-brandHover text-white font-bold py-5 rounded-2xl text-lg flex items-center justify-center gap-3 shadow-lg">
+                        <!-- Big Gallery Button -->
+                        <button onclick="triggerFileSelect()" class="mt-6 w-full bg-brand hover:bg-brandHover text-white font-bold py-5 rounded-2xl text-lg flex items-center justify-center gap-3 shadow-lg active:scale-95">
                             <i class="ph ph-folder-open text-2xl"></i>
-                            📁 CHOOSE FROM GALLERY
+                            CHOOSE FROM GALLERY / FILE MANAGER
                         </button>
 
-                        <!-- Staging -->
-                        <div id="stagingArea" class="hidden mt-8 bg-gray-50 dark:bg-gray-900 border rounded-2xl p-5">
-                            <div class="flex justify-between mb-4">
-                                <p class="font-bold">Selected: <span id="selectedCount" class="text-brand text-2xl">0</span></p>
+                        <!-- STAGING AREA -->
+                        <div id="stagingArea" class="hidden mt-8 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <p class="font-bold text-lg">Selected: <span id="selectedCount" class="text-brand text-2xl">0</span></p>
                                 <button onclick="clearSelection()" class="text-red-600 font-medium">Clear All</button>
                             </div>
-                            <div id="previewList" class="grid grid-cols-3 gap-3 max-h-60 overflow-auto"></div>
-                            <button onclick="startUpload()" class="mt-6 w-full bg-brand text-white py-4 rounded-2xl font-bold">Upload All Now</button>
+                            <div id="previewList" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-64 overflow-y-auto"></div>
+                            <button onclick="startUpload()" class="mt-6 w-full bg-brand text-white py-4 rounded-2xl font-bold text-lg">Upload Now</button>
                         </div>
 
-                        <div id="uploadQueue" class="hidden mt-6"></div>
+                        <!-- Queue -->
+                        <div id="uploadQueue" class="hidden mt-6 space-y-3">
+                            <h3 class="font-bold text-brand flex items-center gap-2"><i class="ph ph-spinner-gap animate-spin"></i> Uploading...</h3>
+                            <div id="queueList" class="space-y-3"></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Gallery Section (same as before) -->
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border flex flex-col" style="height: calc(100vh - 140px);">
-                    <!-- Your existing gallery code -->
-                    <div class="flex justify-between mb-5">
+                <!-- HOSTED LINKS -->
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-3xl border shadow-sm flex flex-col h-[calc(100vh-140px)]">
+                    <div class="flex justify-between items-center mb-5">
                         <h2 class="font-bold text-xl flex items-center gap-2"><i class="ph ph-link text-brand"></i> Hosted Links</h2>
-                        <button onclick="copyAllLinks()" class="bg-brand/10 text-brand px-5 py-2 rounded-xl font-medium">Copy All</button>
+                        <button onclick="copyAllLinks()" class="bg-brand/10 text-brand px-4 py-2 rounded-xl font-medium">Copy All</button>
                     </div>
-                    <!-- Search and links container same -->
+                    <div class="relative mb-5">
+                        <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input id="searchInput" type="text" placeholder="Search links..." class="w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-900 rounded-xl outline-none focus:border-brand border border-transparent">
+                    </div>
+                    <div id="linksContainer" class="flex-1 overflow-y-auto space-y-3">
+                        <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
+                            <i class="ph ph-folder-open text-6xl mb-3"></i>
+                            <p>No images yet</p>
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Toast -->
+    <!-- TOAST -->
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2 opacity-0 transition-all" style="display: none;">
-        <i class="ph ph-check-circle"></i>
+        <i class="ph ph-check-circle text-green-400"></i>
         <span id="toastMsg"></span>
     </div>
 
     <script>
-        // All your original script + fixed selection logic
+        // ================= CONFIG & STATE =================
         const cloudName = "dozknmpib";
         const uploadPreset = "Gkpitafi";
         let selectedFilesArray = [];
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
 
-        // Hidden file input
-        const fileInput = document.createElement("input");
-        fileInput.type = "file";
+        // Hidden File Input (Most Reliable for Mobile)
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
         fileInput.multiple = true;
-        fileInput.accept = "image/*";
-        fileInput.style.display = "none";
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
         document.body.appendChild(fileInput);
 
         window.triggerFileSelect = () => fileInput.click();
 
-        fileInput.onchange = () => {
-            window.processNativeFiles(fileInput);
+        // ================= AUTH =================
+        const ADMIN_EMAIL = "gk@gmail.com";
+        const ADMIN_PASS = "gk-pitafi";
+
+        if (localStorage.getItem("auth") === "1") {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("app").classList.remove("hidden");
+            renderLinks();
+        }
+
+        document.getElementById("loginForm").onsubmit = (e) => {
+            e.preventDefault();
+            if (document.getElementById("email").value === ADMIN_EMAIL && document.getElementById("password").value === ADMIN_PASS) {
+                localStorage.setItem("auth", "1");
+                location.reload();
+            } else {
+                document.getElementById("loginErr").classList.remove("hidden");
+            }
         };
 
-        // Dropzone
+        document.getElementById("togglePass").onclick = () => {
+            const p = document.getElementById("password");
+            const icon = document.querySelector("#togglePass i");
+            if (p.type === "password") {
+                p.type = "text";
+                icon.classList.replace("ph-eye", "ph-eye-slash");
+            } else {
+                p.type = "password";
+                icon.classList.replace("ph-eye-slash", "ph-eye");
+            }
+        };
+
+        function logout() {
+            localStorage.removeItem("auth");
+            location.reload();
+        }
+
+        // Theme & Sidebar
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        document.getElementById("openSidebar").onclick = () => {
+            document.getElementById("sidebar").classList.remove("-translate-x-full");
+            document.getElementById("sidebarOverlay").classList.remove("hidden");
+        };
+        const closeSide = () => {
+            document.getElementById("sidebar").classList.add("-translate-x-full");
+            document.getElementById("sidebarOverlay").classList.add("hidden");
+        };
+        document.getElementById("closeSidebar").onclick = closeSide;
+        document.getElementById("sidebarOverlay").onclick = closeSide;
+
+        // ================= FILE SELECTION =================
+        fileInput.onchange = () => processNativeFiles(fileInput);
+
         const dropZone = document.getElementById("dropZone");
-        dropZone.addEventListener("click", () => fileInput.click());
+        dropZone.addEventListener("click", () => triggerFileSelect());
+
+        // Drag & Drop
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("drag-active");
+        });
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-active"));
         dropZone.addEventListener("drop", (e) => {
             e.preventDefault();
-            window.processNativeFiles({files: e.dataTransfer.files});
+            dropZone.classList.remove("drag-active");
+            processNativeFiles({ files: e.dataTransfer.files });
         });
 
         window.processNativeFiles = function(input) {
@@ -157,10 +256,10 @@
 
             files.forEach(file => {
                 if (!file.type.startsWith("image/")) return;
-                if (selectedFilesArray.some(f => f.name === file.name)) return;
+                if (selectedFilesArray.some(f => f.file.name === file.name && f.file.size === file.size)) return;
 
                 selectedFilesArray.push({
-                    id: Math.random().toString(36),
+                    id: Math.random().toString(36).slice(2),
                     file: file,
                     url: URL.createObjectURL(file),
                     name: file.name
@@ -170,44 +269,152 @@
 
             if (added > 0) {
                 renderPreview();
-                showToast(`${added} images selected`);
+                showToast(`${added} image(s) selected`);
+                document.getElementById("stagingArea").scrollIntoView({ behavior: "smooth" });
             }
         };
 
         function renderPreview() {
-            const area = document.getElementById("stagingArea");
-            const count = document.getElementById("selectedCount");
+            const staging = document.getElementById("stagingArea");
+            const countEl = document.getElementById("selectedCount");
             const list = document.getElementById("previewList");
 
-            area.classList.remove("hidden");
-            count.textContent = selectedFilesArray.length;
+            if (selectedFilesArray.length === 0) {
+                staging.classList.add("hidden");
+                return;
+            }
 
+            staging.classList.remove("hidden");
+            countEl.textContent = selectedFilesArray.length;
             list.innerHTML = "";
-            selectedFilesArray.forEach((item, index) => {
+
+            selectedFilesArray.forEach((item, idx) => {
                 const div = document.createElement("div");
-                div.className = "relative aspect-square rounded-2xl overflow-hidden border";
+                div.className = "relative aspect-square rounded-xl overflow-hidden border border-gray-300";
                 div.innerHTML = `
                     <img src="${item.url}" class="w-full h-full object-cover">
-                    <button onclick="removeSelected(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6">×</button>
+                    <button onclick="removeSelected(${idx})" class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full text-lg leading-none">×</button>
                 `;
                 list.appendChild(div);
             });
         }
 
-        window.removeSelected = function(index) {
-            selectedFilesArray.splice(index, 1);
+        window.removeSelected = function(idx) {
+            selectedFilesArray.splice(idx, 1);
             renderPreview();
         };
 
         function clearSelection() {
             selectedFilesArray = [];
-            document.getElementById("stagingArea").classList.add("hidden");
+            renderPreview();
         }
 
-        // Upload, renderLinks, toast, auth etc. functions same as your original
-        // (I kept them short for this response - add your full upload logic here)
+        // ================= UPLOAD =================
+        function startUpload() {
+            if (selectedFilesArray.length === 0) return;
+            document.getElementById("uploadQueue").classList.remove("hidden");
 
-        // Login, theme etc. same as original
+            const filesToUpload = [...selectedFilesArray];
+            clearSelection();
+
+            filesToUpload.forEach(item => uploadToCloudinary(item.file, item.id));
+        }
+
+        function uploadToCloudinary(file, fileId) {
+            const queueList = document.getElementById("queueList");
+            const queueItem = document.createElement("div");
+            queueItem.className = "bg-gray-100 dark:bg-gray-900 p-3 rounded-xl flex items-center gap-3";
+            queueItem.innerHTML = `<div class="flex-1">\( {file.name}</div><div id="perc_ \){fileId}" class="text-brand">0%</div>`;
+            queueList.appendChild(queueItem);
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", uploadPreset);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    document.getElementById(`perc_${fileId}`).textContent = Math.round((e.loaded / e.total) * 100) + "%";
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    savedLinks.unshift({ url: data.secure_url, name: file.name, id: Date.now().toString() });
+                    localStorage.setItem('gk_links', JSON.stringify(savedLinks));
+                    renderLinks();
+                    showToast("Uploaded Successfully!");
+                } else {
+                    showToast("Upload Failed");
+                }
+                setTimeout(() => queueItem.remove(), 1500);
+            };
+
+            xhr.send(formData);
+        }
+
+        // ================= GALLERY =================
+        function renderLinks() {
+            const container = document.getElementById("linksContainer");
+            const empty = document.getElementById("emptyState");
+            document.getElementById("totalCount").textContent = savedLinks.length;
+
+            if (savedLinks.length === 0) {
+                empty.style.display = "flex";
+                container.innerHTML = `<div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">...</div>`;
+                return;
+            }
+
+            empty.style.display = "none";
+            container.innerHTML = "";
+
+            savedLinks.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "flex gap-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-2xl border";
+                div.innerHTML = `
+                    <img src="${item.url}" class="w-12 h-12 object-cover rounded-xl">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium truncate">${item.name}</p>
+                        <a href="\( {item.url}" target="_blank" class="text-xs text-brand break-all"> \){item.url}</a>
+                    </div>
+                    <button onclick="copyText('${item.url}')" class="text-gray-500"><i class="ph ph-copy"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            showToast("Link Copied!");
+        }
+
+        function copyAllLinks() {
+            if (savedLinks.length === 0) return;
+            navigator.clipboard.writeText(savedLinks.map(l => l.url).join("\n"));
+            showToast("All Links Copied!");
+        }
+
+        // ================= TOAST =================
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastMsg").innerText = msg;
+            toast.style.display = "flex";
+            toast.classList.remove("opacity-0");
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0");
+                setTimeout(() => { toast.style.display = "none"; }, 400);
+            }, 2500);
+        }
+
+        // Search
+        document.getElementById("searchInput").addEventListener("input", (e) => {
+            // Simple filter can be added if needed
+            renderLinks();
+        });
     </script>
 </body>
 </html>
