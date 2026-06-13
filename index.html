@@ -107,8 +107,6 @@
                         <p class="text-gray-500">or tap button below</p>
                     </div>
 
-                    
-
                     <!-- Staging -->
                     <div id="stagingArea" class="hidden mt-8 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 bg-white dark:bg-gray-900">
                         <div class="flex justify-between mb-4">
@@ -121,7 +119,6 @@
 
                     <!-- Queue -->
                     <div id="uploadQueue" class="hidden mt-6">
-                       
                         <div id="queueList" class="space-y-3"></div>
                     </div>
                 </div>
@@ -146,10 +143,39 @@
         </div>
     </div>
 
+    <!-- NEW UPLOAD SUCCESS POPUP CARD -->
+    <div id="successPopup" class="fixed inset-0 flex items-center justify-center bg-black/60 z-50 hidden opacity-0 transition-opacity duration-300">
+        <div id="successPopupCard" class="bg-white dark:bg-gray-800 w-full max-w-lg p-6 rounded-3xl shadow-2xl mx-4 transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2 text-green-500">
+                    <i class="ph ph-check-circle text-3xl"></i>
+                    <h2 class="text-2xl font-bold">Upload Complete!</h2>
+                </div>
+                <button onclick="closeSuccessPopup()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="ph ph-x text-2xl"></i>
+                </button>
+            </div>
+            <p class="text-gray-500 mb-6">Successfully uploaded <span id="newUploadCount" class="font-bold text-brand">0</span> new images.</p>
+            
+            <div class="bg-gray-100 dark:bg-gray-900 rounded-2xl p-4 mb-6 border dark:border-gray-700">
+                <textarea id="newLinksArea" class="w-full h-32 bg-transparent outline-none resize-none text-sm font-medium text-brand break-all" readonly></textarea>
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="copyNewLinks()" class="flex-1 bg-brand hover:bg-brandHover text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                    <i class="ph ph-copy text-xl"></i> Copy Links
+                </button>
+                <button onclick="closeSuccessPopup()" class="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-3 rounded-xl font-bold transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST -->
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2 opacity-0 transition-all" style="display:none">
-        <i class="ph ph-check-circle"></i>
-        <span id="toastMsg"></span>
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2 opacity-0 transition-all z-50" style="display:none">
+        <i class="ph ph-check-circle text-green-400 text-xl"></i>
+        <span id="toastMsg" class="font-medium"></span>
     </div>
 
     <script>
@@ -157,6 +183,11 @@
         const uploadPreset = "Gkpitafi";
         let selectedFilesArray = [];
         let savedLinks = JSON.parse(localStorage.getItem('gk_links')) || [];
+        
+        // Variables for Tracking Upload Batch
+        let currentBatchLinks = [];
+        let completedUploads = 0;
+        let totalUploads = 0;
 
         // Hidden input
         const fileInput = document.createElement('input');
@@ -175,7 +206,6 @@
             renderLinks();
         }
 
-        // Login, togglePass, logout, theme, sidebar functions (standard) ...
         document.getElementById("loginForm").onsubmit = (e) => {
             e.preventDefault();
             if (document.getElementById("email").value === "gk@gmail.com" && document.getElementById("password").value === "gk-pitafi") {
@@ -185,6 +215,19 @@
                 document.getElementById("loginErr").classList.remove("hidden");
             }
         };
+
+        // Password Toggle
+        document.getElementById("togglePass").addEventListener('click', function() {
+            const passInput = document.getElementById("password");
+            const icon = this.querySelector('i');
+            if(passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.replace('ph-eye', 'ph-eye-slash');
+            } else {
+                passInput.type = 'password';
+                icon.classList.replace('ph-eye-slash', 'ph-eye');
+            }
+        });
 
         function logout() { localStorage.removeItem("auth"); location.reload(); }
         function toggleTheme() {
@@ -196,8 +239,11 @@
 
         const dropZone = document.getElementById("dropZone");
         dropZone.addEventListener("click", () => triggerFileSelect());
+        dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-active"); });
+        dropZone.addEventListener("dragleave", e => { e.preventDefault(); dropZone.classList.remove("drag-active"); });
         dropZone.addEventListener("drop", e => {
             e.preventDefault();
+            dropZone.classList.remove("drag-active");
             processNativeFiles({files: e.dataTransfer.files});
         });
 
@@ -234,10 +280,10 @@
 
             selectedFilesArray.forEach((item, i) => {
                 const div = document.createElement("div");
-                div.className = "relative aspect-square rounded-xl overflow-hidden border";
+                div.className = "relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700";
                 div.innerHTML = `
                     <img src="${item.url}" class="w-full h-full object-cover">
-                    <button onclick="removeSelected(${i})" class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full">×</button>
+                    <button onclick="removeSelected(${i})" class="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-lg"><i class="ph ph-x text-xs"></i></button>
                 `;
                 list.appendChild(div);
             });
@@ -246,6 +292,7 @@
         window.removeSelected = function(i) {
             selectedFilesArray.splice(i, 1);
             renderPreview();
+            if(selectedFilesArray.length === 0) clearSelection();
         };
 
         function clearSelection() {
@@ -258,17 +305,22 @@
             document.getElementById("uploadQueue").classList.remove("hidden");
 
             const toUpload = [...selectedFilesArray];
-            clearSelection();
+            
+            // Reset Batch Trackers
+            currentBatchLinks = [];
+            completedUploads = 0;
+            totalUploads = toUpload.length;
 
+            clearSelection();
             toUpload.forEach(item => uploadToCloudinary(item));
         }
 
         function uploadToCloudinary(item) {
             const queueList = document.getElementById("queueList");
             const div = document.createElement("div");
-            div.className = "bg-gray-100 dark:bg-gray-900 p-4 rounded-2xl flex justify-between items-center";
+            div.className = "bg-gray-100 dark:bg-gray-900 p-4 rounded-2xl flex justify-between items-center border dark:border-gray-700";
             div.innerHTML = `
-                <div class="flex-1 truncate">${item.name}</div>
+                <div class="flex-1 truncate font-medium text-sm mr-4">${item.name}</div>
                 <div id="perc_${item.id}" class="font-bold text-brand">0%</div>
             `;
             queueList.appendChild(div);
@@ -287,19 +339,72 @@
             };
 
             xhr.onload = () => {
+                completedUploads++; // Increment Tracking counter
+
                 if (xhr.status === 200) {
                     const data = JSON.parse(xhr.responseText);
-                    savedLinks.unshift({url: data.secure_url, name: item.name, id: Date.now().toString()});
+                    const uploadedUrl = data.secure_url;
+                    
+                    savedLinks.unshift({url: uploadedUrl, name: item.name, id: Date.now().toString()});
+                    currentBatchLinks.push(uploadedUrl); // Save URL for Popup
+                    
                     localStorage.setItem('gk_links', JSON.stringify(savedLinks));
                     renderLinks();
-                    showToast("Upload Successful!");
                 } else {
-                    showToast("Upload Failed");
+                    showToast(`Failed: ${item.name}`);
                 }
+
+                // Remove queue item after a short delay
                 setTimeout(() => div.remove(), 1200);
+
+                // Check if all files in the batch are processed
+                if(completedUploads === totalUploads) {
+                    setTimeout(() => {
+                        document.getElementById("uploadQueue").classList.add("hidden");
+                        if(currentBatchLinks.length > 0) {
+                            openSuccessPopup();
+                        }
+                    }, 1200);
+                }
             };
 
             xhr.send(fd);
+        }
+
+        // Popup Functions
+        function openSuccessPopup() {
+            const popup = document.getElementById("successPopup");
+            const card = document.getElementById("successPopupCard");
+            const textarea = document.getElementById("newLinksArea");
+            
+            document.getElementById("newUploadCount").textContent = currentBatchLinks.length;
+            textarea.value = currentBatchLinks.join("\n");
+            
+            popup.classList.remove("hidden");
+            // Allow display:block to apply before adding opacity
+            setTimeout(() => {
+                popup.classList.remove("opacity-0");
+                card.classList.remove("scale-95");
+            }, 10);
+        }
+
+        function closeSuccessPopup() {
+            const popup = document.getElementById("successPopup");
+            const card = document.getElementById("successPopupCard");
+            
+            popup.classList.add("opacity-0");
+            card.classList.add("scale-95");
+            
+            setTimeout(() => {
+                popup.classList.add("hidden");
+            }, 300); // Matches duration-300 class
+        }
+
+        function copyNewLinks() {
+            const textarea = document.getElementById("newLinksArea");
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value);
+            showToast("New Links Copied Successfully!");
         }
 
         function renderLinks() {
@@ -316,14 +421,14 @@
 
             savedLinks.forEach(item => {
                 const div = document.createElement("div");
-                div.className = "flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border";
+                div.className = "flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border dark:border-gray-700 hover:border-brand transition-colors group";
                 div.innerHTML = `
-                    <img src="${item.url}" class="w-14 h-14 object-cover rounded-xl">
+                    <img src="${item.url}" class="w-14 h-14 object-cover rounded-xl shadow-sm">
                     <div class="flex-1 min-w-0">
-                        <p class="font-medium truncate">${item.name}</p>
-                        <a href="\( {item.url}" target="_blank" class="text-xs text-brand break-all"> \){item.url}</a>
+                        <p class="font-semibold text-sm truncate mb-1">${item.name}</p>
+                        <a href="${item.url}" target="_blank" class="text-xs text-brand break-all hover:underline">${item.url}</a>
                     </div>
-                    <button onclick="copyText('${item.url}')" class="p-2"><i class="ph ph-copy text-xl"></i></button>
+                    <button onclick="copyText('${item.url}')" class="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:text-brand transition-colors"><i class="ph ph-copy text-xl"></i></button>
                 `;
                 container.appendChild(div);
             });
@@ -335,24 +440,66 @@
         }
 
         function copyAllLinks() {
+            if(savedLinks.length === 0) {
+                showToast("No links to copy");
+                return;
+            }
             navigator.clipboard.writeText(savedLinks.map(l => l.url).join("\n"));
-            showToast("All links copied!");
+            showToast("All Hosted Links Copied!");
         }
 
         function showToast(msg) {
             const toast = document.getElementById("toast");
             document.getElementById("toastMsg").innerText = msg;
             toast.style.display = "flex";
-            toast.classList.remove("opacity-0");
+            
+            setTimeout(() => { toast.classList.remove("opacity-0"); }, 10);
+            
             setTimeout(() => {
                 toast.classList.add("opacity-0");
                 setTimeout(() => toast.style.display = "none", 300);
-            }, 2500);
+            }, 3000);
         }
 
+        // Sidebar Search functionality
+        document.getElementById("searchInput").addEventListener("input", function(e) {
+            const term = e.target.value.toLowerCase();
+            const container = document.getElementById("linksContainer");
+            
+            container.innerHTML = "";
+            const filtered = savedLinks.filter(item => item.name.toLowerCase().includes(term) || item.url.toLowerCase().includes(term));
+            
+            if (filtered.length === 0 && savedLinks.length > 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 mt-10">No results found.</p>`;
+                return;
+            }
+            
+            filtered.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border dark:border-gray-700 hover:border-brand transition-colors";
+                div.innerHTML = `
+                    <img src="${item.url}" class="w-14 h-14 object-cover rounded-xl shadow-sm">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-sm truncate mb-1">${item.name}</p>
+                        <a href="${item.url}" target="_blank" class="text-xs text-brand break-all hover:underline">${item.url}</a>
+                    </div>
+                    <button onclick="copyText('${item.url}')" class="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:text-brand transition-colors"><i class="ph ph-copy text-xl"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        });
+
         // Sidebar
-        document.getElementById("openSidebar").onclick = () => document.getElementById("sidebar").classList.remove("-translate-x-full");
-        window.closeSide = () => document.getElementById("sidebar").classList.add("-translate-x-full");
+        document.getElementById("openSidebar").onclick = () => {
+            document.getElementById("sidebar").classList.remove("-translate-x-full");
+            document.getElementById("sidebarOverlay").classList.remove("hidden");
+        }
+        window.closeSide = () => {
+            document.getElementById("sidebar").classList.add("-translate-x-full");
+            document.getElementById("sidebarOverlay").classList.add("hidden");
+        }
+        document.getElementById("closeSidebar").onclick = closeSide;
+
     </script>
 </body>
 </html>
